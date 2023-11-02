@@ -535,7 +535,7 @@ def import_table_group_to_sqlite(
         metadata_document_location,
         data_folder,
         database_name,
-        csv_file_names=None,  # if none then all are downloaded
+        csv_file_names=None,  # if none then all are imported
         overwrite_existing_tables=False,
         verbose=False
         ):
