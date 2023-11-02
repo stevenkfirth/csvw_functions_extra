@@ -16,7 +16,7 @@ class EXTRA(unittest.TestCase):
     ""
         
         
-    def _test_download_table_group(self):
+    def test_download_table_group(self):
         ""
         
         csvw_functions_extra.download_table_group(

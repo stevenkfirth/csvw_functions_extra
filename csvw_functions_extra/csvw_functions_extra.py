@@ -27,25 +27,25 @@ def _get_download_info(
         ):
     ""
     # get info for downloading
-    csv_file_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/csv_file_name']['@value']
+    csv_file_name=metadata_table_dict['https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name']['@value']
     if verbose:
         print('csv_file_name:',csv_file_name)
-    csv_download_url=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/csv_download_url',{'@value':None})['@value']
+    csv_download_url=metadata_table_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/csv_download_url',{'@value':None})['@value']
     if verbose:
         print('csv_download_url:', csv_download_url)
-    zip_download_url=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/zip_download_url',{'@value':None})['@value']
+    zip_download_url=metadata_table_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/zip_download_url',{'@value':None})['@value']
     if verbose:
         print('zip_download_url',zip_download_url)
-    zip_file_name=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/zip_file_name',{'@value':None})['@value']
+    zip_file_name=metadata_table_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/zip_file_name',{'@value':None})['@value']
     if verbose:
         print('zip_file_name',zip_file_name)
-    csv_zip_extract_path=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/csv_zip_extract_path',{'@value':None})['@value']
+    csv_zip_extract_path=metadata_table_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/csv_zip_extract_path',{'@value':None})['@value']
     if verbose:
         print('csv_zip_extract_path',csv_zip_extract_path)
-    metadata_url=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/metadata_download_url',{'@value':None})['@value']
+    metadata_url=metadata_table_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/metadata_download_url',{'@value':None})['@value']
     if verbose:
         print('metadata_url:',metadata_url)
-    metadata_file_suffix=metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/metadata_file_suffix',{'@value':'-metadata.txt'})['@value']
+    metadata_file_suffix=metadata_table_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/metadata_file_suffix',{'@value':'-metadata.txt'})['@value']
     if verbose:
         print('metadata_file_suffix:',metadata_file_suffix)
     
@@ -147,7 +147,7 @@ def _download_table_and_metadata(
 def download_table_group(
         metadata_document_location,
         data_folder,
-        csv_file_name=None,  # if none then all are downloaded
+        csv_file_names=None,  # if none then all are downloaded
         overwrite_existing_files=False,
         verbose=False
         ):
@@ -163,9 +163,9 @@ def download_table_group(
         downloaded CSV data is to be saved to.
     :type data_folder: str
     
-    :param csv_file_name: The csv_file_name values of the tables 
+    :param csv_file_names: The csv_file_name values of the tables 
         to be downloaded. If None then all tables are downloaded.
-    :type csv_file_name: str or list
+    :type csv_file_names: str or list
     
     :param overwrite_existing_files: If True, then any existing CSV files
         in data_folder will be overwritten. 
@@ -186,7 +186,7 @@ def download_table_group(
         print('--- FUNCTION: csvw_functions_extra.download_table_group ---')
     
     # convert single csv_file_name to list. None becomes an empty list.
-    csv_file_name_list=_convert_to_iterator(csv_file_name)
+    csv_file_name_list=_convert_to_iterator(csv_file_names)
     
     # create data_folder if it doesn't exist
     if not os.path.exists(data_folder):
@@ -375,7 +375,7 @@ def get_metadata_sql_table_names(
     
     for metadata_table_dict in metadata_table_group_dict['tables']:
         
-        x = metadata_table_dict.get('https://purl.org/berg/csvw_functions/vocab/sql_table_name',{}).get('@value',None)
+        x = metadata_table_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name',{}).get('@value',None)
         
         if not x is None:
             result.append(x)
@@ -447,7 +447,7 @@ def _create_table_from_csvw(
         c = conn.cursor()
         for column_dict in metadata_table_dict['tableSchema']['columns']:
             column_name=column_dict['name']
-            setindex=column_dict.get('https://purl.org/berg/csvw_functions/vocab/sqlsetindex',False)
+            setindex=column_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/sqlsetindex',False)
             if setindex:
                 index_name=f'{table_name}_{column_name}'
                 query=f'CREATE INDEX "{index_name}" ON "{table_name}"("{column_name}")'
@@ -479,10 +479,10 @@ def _get_import_info(
         ):
     ""
     # get info for importing
-    csv_file_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/csv_file_name']['@value']
+    csv_file_name=metadata_table_dict['https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name']['@value']
     if verbose:
         print('csv_file_name:',csv_file_name)
-    table_name=metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/sql_table_name']['@value']
+    table_name=metadata_table_dict['https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name']['@value']
     if verbose:
         print('table_name:',table_name)
     url=metadata_table_dict['url']
@@ -492,7 +492,7 @@ def _get_import_info(
     if verbose:
         print('fp_csv:', fp_csv)
     remove_existing_table=metadata_table_dict.get(
-        "https://purl.org/berg/csvw_functions/vocab/sql_remove_existing_table",
+        "https://purl.org/berg/csvw_functions_extra/vocab/sql_remove_existing_table",
         False
         )
     
