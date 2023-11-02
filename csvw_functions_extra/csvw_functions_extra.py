@@ -535,8 +535,8 @@ def import_table_group_to_sqlite(
         metadata_document_location,
         data_folder,
         database_name,
-        csv_file_name=None,  # if none then all are downloaded
-        remove_existing_tables=False,
+        csv_file_names=None,  # if none then all are downloaded
+        overwrite_existing_tables=False,
         verbose=False
         ):
     """
@@ -556,13 +556,13 @@ def import_table_group_to_sqlite(
         data_folder.
     :type database_name: str
     
-    :param csv_file_name: The csv_file_name values of the tables 
+    :param csv_file_names: The csv_file_name values of the tables 
         to be imported. If None then all tables are imported.
-    :type csv_file_name: str or list
+    :type csv_file_names: str or list
     
-    :param remove_existing_tables: If True, then before importing the CSV data
+    :param overwrite_existing_tables: If True, then before importing the CSV data
         any associated existing table in the database is removed and recreated.
-    :type overwrite_existing_files: bool
+    :type overwrite_existing_tables: bool
     
     :param verbose: If True, then this function prints intermediate variables
         and other useful information.
@@ -575,7 +575,7 @@ def import_table_group_to_sqlite(
         print('--- FUNCTION: csvw_functions_extra.import_table_group_to_sqlite ---')
     
     # convert single csv_file_name to list. None becomes an empty list.
-    csv_file_name_list=_convert_to_iterator(csv_file_name)
+    csv_file_name_list=_convert_to_iterator(csv_file_names)
         
     # create data_folder if it doesn't exist
     if not os.path.exists(data_folder):

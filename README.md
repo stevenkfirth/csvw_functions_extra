@@ -18,6 +18,7 @@ Method (for ZIP files):
 
 1. 
 
+
 Call signature:
 
 ```python
@@ -44,7 +45,7 @@ Return type: *str*
 
 ### import_table_group_to_sqlite
 
-Description: Reads a CSVW metadata file and imports the CSV data into a SQLITE database. This makes use of the [https://purl.org/berg/csvw_functions_extra](##CSVW-vocabulary) vocabulary.
+Description: Reads a CSVW metadata file and imports the CSV data into a SQLite database. This makes use of the [https://purl.org/berg/csvw_functions_extra](##CSVW-vocabulary) vocabulary.
 
 Method:
 
@@ -66,10 +67,10 @@ import_table_group_to_sqlite(
 
 Arguments:
 - **metadata_document_location** *(str)*: The local filename of the csvw metadata file containing a Table Group object. This could be the filename returned by the [download_table_group](#download_table_group) function.
-- **data_folder** *(str)*: The filepath of a local folder where the downloaded CSV data is located and the SQLITE database is stored.
-- **database_name** *(str)*: The name of the SQLITE database, relative to the data_folder.
+- **data_folder** *(str)*: The filepath of a local folder where the downloaded CSV data is located and the SQLite database is stored.
+- **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
 - **csv_file_names** *(str or list)*: The csv_file_name values of the tables to be imported. If None then all CSV files are imported.
-- **remove_existing_tables** *(bool)*: If True, then before importing the CSV data any associated existing table in the database is removed and recreated.
+- **overwrite_existing_tables** *(bool)*: If True, then before importing the CSV data any associated existing table in the database is removed and recreated.
 - **verbose (bool)**: If True, then this function prints intermediate variables and other useful information.
 
 Returns: None
