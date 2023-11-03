@@ -1,6 +1,12 @@
 # csvw_functions_extra
 Python functions for CSVW files providing extra functionality beyond the CSVW standards
 
+## Installation
+
+`pip install git+https://github.com/stevenkfirth/csvw_functions_extra`
+
+The python package [`csvw_functions`](https://github.com/stevenkfirth/csvw_functions) will also need to be installed.
+
 ## API
 
 ### download_table_group
@@ -80,6 +86,8 @@ Returns: None
 
 ### Vocabulary on CSVW column metadata objects
 
+- `https://purl.org/berg/csvw_functions_extra/vocab/sqlsetindex`: Boolean. If `true` then an SQLite index is set up on this column when the data is imported into the database.
+
 ### Vocabulary on CSVW table metadata objects
 
 - `https://purl.org/berg/csvw_functions_extra/vocab/csv_download_url`: The url where the remote CSV file can be downloaded from.
@@ -90,5 +98,5 @@ Returns: None
 
 - `https://purl.org/berg/csvw_functions_extra/vocab/metadata_file_suffix`: A suffix to use when saving the associated metadata file.
 
-- `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name`: The name to be used for the database table when importing the CSV file into SQLite.
+- `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name`: The name to be used for the database table when importing the CSV file into a SQLite database.
             
