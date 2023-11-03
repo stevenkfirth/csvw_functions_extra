@@ -186,7 +186,7 @@ def download_table_group(
         print('--- FUNCTION: csvw_functions_extra.download_table_group ---')
     
     # convert single csv_file_name to list. None becomes an empty list.
-    csv_file_name_list=_convert_to_iterator(csv_file_names)
+    csv_file_name_list=convert_to_iterator(csv_file_names)
     
     # create data_folder if it doesn't exist
     if not os.path.exists(data_folder):
@@ -272,6 +272,25 @@ def download_table_group(
 #     with open(fp_metadata, 'w') as f:
 #         json.dump(metadata_table_dict,f,indent=4)
 
+
+#%% remote metadata functions
+
+def get_available_csv_file_names(
+        metadata_document_location
+        ):
+    """
+    """
+    # get normalised metadata_table_group_dict
+    metadata_table_group_dict = \
+        csvw_functions.validate_table_group_metadata(
+            metadata_document_location
+            )
+    
+    result = [metadata_table_dict['https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name']['@value']
+              for metadata_table_dict
+              in metadata_table_group_dict['tables']]
+
+    return result
 
 
 #%% read downloaded metadata file
@@ -575,7 +594,7 @@ def import_table_group_to_sqlite(
         print('--- FUNCTION: csvw_functions_extra.import_table_group_to_sqlite ---')
     
     # convert single csv_file_name to list. None becomes an empty list.
-    csv_file_name_list=_convert_to_iterator(csv_file_names)
+    csv_file_name_list=convert_to_iterator(csv_file_names)
         
     # create data_folder if it doesn't exist
     if not os.path.exists(data_folder):
@@ -619,7 +638,7 @@ def import_table_group_to_sqlite(
                 table_name
                 ):
                 
-                if remove_existing_table or remove_existing_tables:
+                if remove_existing_table or overwrite_existing_tables:
     
                     _drop_table(
                         fp_database,
@@ -665,7 +684,7 @@ def import_table_group_to_sqlite(
         
 #%% sqlite useful functions
 
-def _convert_to_iterator(
+def convert_to_iterator(
         x
         ):
     ""
@@ -690,7 +709,7 @@ def add_index(
         verbose=False
         ):
     ""
-    fields=_convert_to_iterator(fields)
+    fields=convert_to_iterator(fields)
     fields_string='__'.join(fields)
     
     if unique:
@@ -741,7 +760,7 @@ def get_where_clause_list(
         
         if not v is None:
             
-            x=_convert_to_iterator(v)
+            x=convert_to_iterator(v)
             x=[f'"{x}"' if isinstance(x,str) else f'{x}' for x in x] 
             if len(x)==1:
                 x=f'("{k}" = {x[0]})'
