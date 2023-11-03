@@ -5,7 +5,7 @@ Python functions for CSVW files providing extra functionality beyond the CSVW st
 
 ### download_table_group
 
-Description: Reads a CSVW metadata file and downloads the CSV files from remote locations. This makes use of the [https://purl.org/berg/csvw_functions_extra](##CSVW-vocabulary) vocabulary. 
+Description: Reads a CSVW metadata file and downloads the CSV files from remote locations. This makes use of the [https://purl.org/berg/csvw_functions_extra](#CSVW-vocabulary) vocabulary. 
 
 Method (for individual CSV files):
 
