@@ -18,7 +18,140 @@ import subprocess
 import zipfile
 
 
+#%% remote csvw metadata functions
+
+def get_normalized_metadata_table_group_dict(
+        metadata_document_location
+        ):
+    """
+    """
+    metadata_table_group_dict = \
+        csvw_functions.validate_table_group_metadata(
+            metadata_document_location
+            )
+        
+    return metadata_table_group_dict
+    
+
+def get_available_csv_file_names(
+        metadata_document_location
+        ):
+    """
+    """
+    metadata_table_group_dict = \
+        get_normalized_metadata_table_group_dict(
+                metadata_document_location
+                )
+    
+    result = []
+    
+    for metadata_table_dict in metadata_table_group_dict['tables']:
+    
+        x = metadata_table_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name')
+        
+        if not x is None:
+            
+            result.append(x['@value'])
+        
+    return result
+
+
+
 #%% download csv files
+
+def download_table_group(
+        metadata_document_location,
+        data_folder,
+        csv_file_names=None,  # if none then all are downloaded
+        overwrite_existing_files=False,
+        verbose=False
+        ):
+    """Reads a CSVW metadata file and downloads the CSV files from remote locations.
+    
+    This makes use of the https://purl.org/berg/csvw_functions_extra vocabulary.
+        
+    :param metadata_document_location: The filepath of the csvw metadata 
+        file containing a table group object.
+    :type metadata_document_location: str
+    
+    :param data_folder: The filepath of a local folder where the 
+        downloaded CSV data is to be saved to.
+    :type data_folder: str
+    
+    :param csv_file_names: The csv_file_name values of the tables 
+        to be downloaded. If None then all tables are downloaded.
+    :type csv_file_names: str or list
+    
+    :param overwrite_existing_files: If True, then any existing CSV files
+        in data_folder will be overwritten. 
+        If False, then no download occurs if there is an existing CSV file
+        in data_folder.
+    :type overwrite_existing_files: bool
+    
+    :param verbose: If True, then this function prints intermediate variables
+        and other useful information.
+    :type verbose: bool
+    
+    :returns: The local filepath of the updated csvw metadata file 
+        containing the new URLs for the newly downloaded tables.
+    :rtype: str
+    
+    """
+    if verbose:
+        print('--- FUNCTION: csvw_functions_extra.download_table_group ---')
+    
+    # convert single csv_file_name to list. None becomes an empty list.
+    csv_file_name_list=convert_to_iterator(csv_file_names)
+    
+    # create data_folder if it doesn't exist
+    if not os.path.exists(data_folder):
+        os.makedirs(data_folder)
+        
+    # get normalised metadata_table_group_dict
+    metadata_table_group_dict = \
+        csvw_functions.validate_table_group_metadata(
+            metadata_document_location
+            )
+    #if verbose:
+        #print(metadata_table_group_dict)
+    
+    for i, metadata_table_dict in enumerate(metadata_table_group_dict['tables']):
+        
+        download_info=_get_download_info(
+            metadata_table_dict,
+            data_folder,
+            verbose=False,
+            )
+        
+        # download table - if required
+        if len(csv_file_name_list)==0 \
+            or download_info['csv_file_name'] in csv_file_name_list:
+                
+            if verbose:
+                print('---')
+                for k,v in download_info.items(): print(k,v)
+        
+            _download_table_and_metadata(
+                overwrite_existing_files=overwrite_existing_files,
+                verbose=verbose,
+                **download_info
+                )
+            
+            if verbose:
+                print('---')
+    
+        # update metadata_table_dict
+        metadata_table_dict['url']=download_info['csv_file_name']
+        
+           
+        
+    # save updated metadata_table_group_dict
+    fp_metadata=os.path.join(data_folder,os.path.basename(metadata_document_location))
+    with open(fp_metadata, 'w') as f:
+        json.dump(metadata_table_group_dict,f,indent=4)
+        
+    return fp_metadata
+    
 
 def _get_download_info(
         metadata_table_dict,
@@ -144,99 +277,7 @@ def _download_table_and_metadata(
                 )
             
         
-def download_table_group(
-        metadata_document_location,
-        data_folder,
-        csv_file_names=None,  # if none then all are downloaded
-        overwrite_existing_files=False,
-        verbose=False
-        ):
-    """Reads a CSVW metadata file and downloads the CSV files from remote locations.
-    
-    This makes use of the https://purl.org/berg/csvw_functions_extra vocabulary.
-        
-    :param metadata_document_location: The filepath of the csvw metadata 
-        file containing a table group object.
-    :type metadata_document_location: str
-    
-    :param data_folder: The filepath of a local folder where the 
-        downloaded CSV data is to be saved to.
-    :type data_folder: str
-    
-    :param csv_file_names: The csv_file_name values of the tables 
-        to be downloaded. If None then all tables are downloaded.
-    :type csv_file_names: str or list
-    
-    :param overwrite_existing_files: If True, then any existing CSV files
-        in data_folder will be overwritten. 
-        If False, then no download occurs if there is an existing CSV file
-        in data_folder.
-    :type overwrite_existing_files: bool
-    
-    :param verbose: If True, then this function prints intermediate variables
-        and other useful information.
-    :type verbose: bool
-    
-    :returns: The local filepath of the updated csvw metadata file 
-        containing the new URLs for the newly downloaded tables.
-    :rtype: str
-    
-    """
-    if verbose:
-        print('--- FUNCTION: csvw_functions_extra.download_table_group ---')
-    
-    # convert single csv_file_name to list. None becomes an empty list.
-    csv_file_name_list=convert_to_iterator(csv_file_names)
-    
-    # create data_folder if it doesn't exist
-    if not os.path.exists(data_folder):
-        os.makedirs(data_folder)
-        
-    # get normalised metadata_table_group_dict
-    metadata_table_group_dict = \
-        csvw_functions.validate_table_group_metadata(
-            metadata_document_location
-            )
-    #if verbose:
-        #print(metadata_table_group_dict)
-    
-    for i, metadata_table_dict in enumerate(metadata_table_group_dict['tables']):
-        
-        download_info=_get_download_info(
-            metadata_table_dict,
-            data_folder,
-            verbose=False,
-            )
-        
-        # download table - if required
-        if len(csv_file_name_list)==0 \
-            or download_info['csv_file_name'] in csv_file_name_list:
-                
-            if verbose:
-                print('---')
-                for k,v in download_info.items(): print(k,v)
-        
-            _download_table_and_metadata(
-                overwrite_existing_files=overwrite_existing_files,
-                verbose=verbose,
-                **download_info
-                )
-            
-            if verbose:
-                print('---')
-    
-        # update metadata_table_dict
-        metadata_table_dict['url']=download_info['csv_file_name']
-        
-           
-        
-    # save updated metadata_table_group_dict
-    fp_metadata=os.path.join(data_folder,os.path.basename(metadata_document_location))
-    with open(fp_metadata, 'w') as f:
-        json.dump(metadata_table_group_dict,f,indent=4)
-        
-    return fp_metadata
-    
+
 
     
 # def download_table(
@@ -273,27 +314,9 @@ def download_table_group(
 #         json.dump(metadata_table_dict,f,indent=4)
 
 
-#%% remote metadata functions
-
-def get_available_csv_file_names(
-        metadata_document_location
-        ):
-    """
-    """
-    # get normalised metadata_table_group_dict
-    metadata_table_group_dict = \
-        csvw_functions.validate_table_group_metadata(
-            metadata_document_location
-            )
-    
-    result = [metadata_table_dict['https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name']['@value']
-              for metadata_table_dict
-              in metadata_table_group_dict['tables']]
-
-    return result
 
 
-#%% read downloaded metadata file
+#%% downloaded csvw metadata file
 
 
 def get_metadata_table_group_dict(
@@ -338,11 +361,10 @@ def get_metadata_table_dict(
     
     return metadata_table_dict
     
-       
 
 def get_metadata_column_dict(
         column_name,
-        table_name,
+        sql_table_name,
         metadata_table_group_dict=None,
         data_folder=None,
         metadata_filename=None
@@ -358,7 +380,7 @@ def get_metadata_column_dict(
             
     metadata_table_dict = \
         get_metadata_table_dict(
-               table_name,
+               sql_table_name,
                metadata_table_group_dict
                )
     
@@ -386,24 +408,154 @@ def get_metadata_sql_table_names(
         
         metadata_table_group_dict = \
             get_metadata_table_group_dict(
-                data_folder=data_folder,
-                metadata_filename=metadata_filename
+                data_folder,
+                metadata_filename
                 )
 
     result=[]
     
     for metadata_table_dict in metadata_table_group_dict['tables']:
         
-        x = metadata_table_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name',{}).get('@value',None)
+        x = metadata_table_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name')
         
         if not x is None:
-            result.append(x)
+            
+            result.append(x['@value'])
             
     return result
 
 
 
 #%% import data to sqlite
+
+def import_table_group_to_sqlite(
+        metadata_document_location,
+        data_folder,
+        database_name,
+        csv_file_names=None,  # if none then all are imported
+        overwrite_existing_tables=False,
+        verbose=False
+        ):
+    """
+    Reads a CSVW metadata file and imports the CSV data into a SQLITE database.
+    
+    This makes use of the https://purl.org/berg/csvw_functions_extra vocabulary.
+        
+    :param metadata_document_location: The filepath of the csvw metadata 
+        file containing a table group object.
+    :type metadata_document_location: str
+    
+    :param data_folder: The filepath of a local folder where the 
+        downloaded CSV data is located and the SQLITE database is stored.
+    :type data_folder: str
+    
+    :param database_name: The name of the SQLITE database, relative to the
+        data_folder.
+    :type database_name: str
+    
+    :param csv_file_names: The csv_file_name values of the tables 
+        to be imported. If None then all tables are imported.
+    :type csv_file_names: str or list
+    
+    :param overwrite_existing_tables: If True, then before importing the CSV data
+        any associated existing table in the database is removed and recreated.
+    :type overwrite_existing_tables: bool
+    
+    :param verbose: If True, then this function prints intermediate variables
+        and other useful information.
+    :type verbose: bool
+    
+    :returns: None
+    
+    """
+    if verbose:
+        print('--- FUNCTION: csvw_functions_extra.import_table_group_to_sqlite ---')
+    
+    # convert single csv_file_name to list. None becomes an empty list.
+    csv_file_name_list=convert_to_iterator(csv_file_names)
+        
+    # create data_folder if it doesn't exist
+    if not os.path.exists(data_folder):
+        os.makedirs(data_folder)
+        
+    # set database fp
+    fp_database=os.path.join(data_folder,database_name)
+    
+    # get normalised metadata_table_group_dict
+    metadata_table_group_dict = \
+        csvw_functions.validate_table_group_metadata(
+            metadata_document_location
+            )
+    #print(metadata_table_group_dict)
+    
+    # remove existing tables if requested
+    for metadata_table_dict in metadata_table_group_dict['tables']:
+    
+        # get import info
+        csv_file_name, table_name, fp_csv, remove_existing_table = _get_import_info(
+                metadata_table_dict,
+                metadata_document_location,
+                verbose=False,
+                ) 
+        
+        # if requested by csv_file_name argument
+        if len(csv_file_name_list)==0 \
+            or csv_file_name in csv_file_name_list:
+                
+            if verbose:
+                print('---')
+                print('csv_file_name',csv_file_name)
+                print('table_name',table_name)
+                print('fp_csv',fp_csv)
+                print('remove_existing_table',remove_existing_table)
+                
+            if _check_if_table_exists_in_database(
+                fp_database, 
+                table_name
+                ):
+                
+                if remove_existing_table or overwrite_existing_tables:
+    
+                    _drop_table(
+                        fp_database,
+                        table_name
+                        )
+        
+    # create and import tables
+    for metadata_table_dict in metadata_table_group_dict['tables']:
+        
+        # get import info
+        csv_file_name, table_name, fp_csv, remove_existing_table = _get_import_info(
+                metadata_table_dict,
+                metadata_document_location,
+                verbose=False,
+                ) 
+            
+        if len(csv_file_name_list)==0 \
+            or csv_file_name in csv_file_name_list:
+            
+            # create empty table if needed
+            if not _check_if_table_exists_in_database(
+                    fp_database, 
+                    table_name
+                    ):
+                
+                _create_table_from_csvw(
+                    metadata_table_dict, 
+                    fp_database, 
+                    table_name)
+                
+            # import table data to database
+            _import_csv_file(
+                    fp_csv,
+                    fp_database,
+                    table_name,
+                    verbose=verbose
+                    )
+        
+            if verbose:
+                print('---')
+            
 
 def _check_if_table_exists_in_database(
         fp_database,
@@ -550,155 +702,10 @@ def _import_csv_file(
         print('Number of rows after import: ', _get_row_count_in_database_table(fp_database,table_name))
 
 
-def import_table_group_to_sqlite(
-        metadata_document_location,
-        data_folder,
-        database_name,
-        csv_file_names=None,  # if none then all are imported
-        overwrite_existing_tables=False,
-        verbose=False
-        ):
-    """
-    Reads a CSVW metadata file and imports the CSV data into a SQLITE database.
-    
-    This makes use of the https://purl.org/berg/csvw_functions_extra vocabulary.
-        
-    :param metadata_document_location: The filepath of the csvw metadata 
-        file containing a table group object.
-    :type metadata_document_location: str
-    
-    :param data_folder: The filepath of a local folder where the 
-        downloaded CSV data is located and the SQLITE database is stored.
-    :type data_folder: str
-    
-    :param database_name: The name of the SQLITE database, relative to the
-        data_folder.
-    :type database_name: str
-    
-    :param csv_file_names: The csv_file_name values of the tables 
-        to be imported. If None then all tables are imported.
-    :type csv_file_names: str or list
-    
-    :param overwrite_existing_tables: If True, then before importing the CSV data
-        any associated existing table in the database is removed and recreated.
-    :type overwrite_existing_tables: bool
-    
-    :param verbose: If True, then this function prints intermediate variables
-        and other useful information.
-    :type verbose: bool
-    
-    :returns: None
-    
-    """
-    if verbose:
-        print('--- FUNCTION: csvw_functions_extra.import_table_group_to_sqlite ---')
-    
-    # convert single csv_file_name to list. None becomes an empty list.
-    csv_file_name_list=convert_to_iterator(csv_file_names)
-        
-    # create data_folder if it doesn't exist
-    if not os.path.exists(data_folder):
-        os.makedirs(data_folder)
-        
-    # set database fp
-    fp_database=os.path.join(data_folder,database_name)
-    
-    # get normalised metadata_table_group_dict
-    metadata_table_group_dict = \
-        csvw_functions.validate_table_group_metadata(
-            metadata_document_location
-            )
-    #print(metadata_table_group_dict)
-    
-    # remove existing tables if requested
-    for metadata_table_dict in metadata_table_group_dict['tables']:
-    
-        # get import info
-        csv_file_name, table_name, fp_csv, remove_existing_table = _get_import_info(
-                metadata_table_dict,
-                metadata_document_location,
-                verbose=False,
-                ) 
-        
-        # if requested by csv_file_name argument
-        if len(csv_file_name_list)==0 \
-            or csv_file_name in csv_file_name_list:
-                
-            if verbose:
-                print('---')
-                print('csv_file_name',csv_file_name)
-                print('table_name',table_name)
-                print('fp_csv',fp_csv)
-                print('remove_existing_table',remove_existing_table)
-                
-                
-                
-            if _check_if_table_exists_in_database(
-                fp_database, 
-                table_name
-                ):
-                
-                if remove_existing_table or overwrite_existing_tables:
-    
-                    _drop_table(
-                        fp_database,
-                        table_name
-                        )
-        
-    # create and import tables
-    for metadata_table_dict in metadata_table_group_dict['tables']:
-        
-        # get import info
-        csv_file_name, table_name, fp_csv, remove_existing_table = _get_import_info(
-                metadata_table_dict,
-                metadata_document_location,
-                verbose=False,
-                ) 
-            
-        if len(csv_file_name_list)==0 \
-            or csv_file_name in csv_file_name_list:
-            
-            # create empty table if needed
-            if not _check_if_table_exists_in_database(
-                    fp_database, 
-                    table_name
-                    ):
-                
-                _create_table_from_csvw(
-                    metadata_table_dict, 
-                    fp_database, 
-                    table_name)
-                
-            # import table data to database
-            _import_csv_file(
-                    fp_csv,
-                    fp_database,
-                    table_name,
-                    verbose=verbose
-                    )
-        
-            if verbose:
-                print('---')
-            
-        
-        
-#%% sqlite useful functions
 
-def convert_to_iterator(
-        x
-        ):
-    ""
-    if x is None:
-        return []
-    elif isinstance(x,str):
-        return [x]
-    else:
-        try:   
-            _ = iter(x)
-            return x
-        except TypeError:
-            return [x]
-
+      
+        
+#%% database functions
 
 def add_index(
         fields,
@@ -749,6 +756,66 @@ def add_index(
         if verbose:
             print('Index not created - already exists in table')
 
+
+def convert_to_iterator(
+        x
+        ):
+    ""
+    if x is None:
+        return []
+    elif isinstance(x,str):
+        return [x]
+    else:
+        try:   
+            _ = iter(x)
+            return x
+        except TypeError:
+            return [x]
+
+
+def get_table_names_in_database(
+        data_folder,
+        database_name        
+        ):
+    """
+    """
+    fp_database=os.path.join(data_folder,database_name)
+    
+    with sqlite3.connect(fp_database) as conn:
+        c = conn.cursor()
+        result = c.execute('SELECT name FROM sqlite_master WHERE type="table"').fetchall()
+
+    result = [x[0] for x in result]
+    
+    return result
+
+
+def get_sql_table_names_in_database(
+        data_folder,
+        database_name,
+        metadata_filename
+        ):
+    """
+    """
+    
+    
+    sql_table_names = \
+        get_metadata_sql_table_names(
+                metadata_table_group_dict=None,
+                data_folder=data_folder,
+                metadata_filename=metadata_filename
+                )
+            
+    all_table_names = \
+        get_table_names_in_database(
+                data_folder,
+                database_name        
+                )
+    
+    result=[x for x in all_table_names if x in sql_table_names]
+    
+    return result
+    
         
 def get_where_clause_list(
         d

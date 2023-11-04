@@ -9,6 +9,34 @@ The python package [`csvw_functions`](https://github.com/stevenkfirth/csvw_funct
 
 ## API
 
+### get_normalized_metadata_table_group_dict
+
+Description: Returns a normalized version of a CSVW metadata file.
+
+```python
+get_normalized_metadata_table_group_dict(
+        metadata_document_location
+        )
+```
+- **metadata_document_location** *(str)*: The filepath or url of the CSVW metadata file containing a Table Group object.
+
+Returns: A dictionary of the normalized CSVW Table Group object.
+
+
+### get_available_csv_file_names
+
+Description: Returns the CSV file names of all tables in a CSVW metadata file.
+
+```python
+csvw_extra_functions.get_available_csv_file_names(
+        metadata_document_location
+)
+```
+- **metadata_document_location** *(str)*: The filepath or url of the CSVW metadata file containing a Table Group object.
+
+Returns: A list of the `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name` value in each table.
+
+
 ### download_table_group
 
 Description: Reads a CSVW metadata file and downloads the CSV files from remote locations. This makes use of the [https://purl.org/berg/csvw_functions_extra](#CSVW-vocabulary) vocabulary. 
@@ -50,66 +78,6 @@ Arguments:
 Returns: The local filename of the updated CSVW metadata file containing the new URLs for the newly downloaded tables.
 
 Return type: *str*
-
-
-### import_table_group_to_sqlite
-
-Description: Reads a CSVW metadata file and imports the CSV data into a SQLite database. This makes use of the [https://purl.org/berg/csvw_functions_extra](##CSVW-vocabulary) vocabulary.
-
-Method:
-
-1. If not already present, a SQLite database named `database_name` is created in the `data_folder`.
-2. For each table in the TableGroup object, the local CSV file is located in the `data_folder` using `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name`.
-3. The CSV file is imported into the SQLite database into a table named using `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name`. 
-
-Call signature:
-
-```python
-import_table_group_to_sqlite(
-        metadata_document_location,
-        data_folder,
-        database_name,
-        csv_file_name=None, 
-        remove_existing_tables=False,
-        verbose=False
-```
-
-Arguments:
-- **metadata_document_location** *(str)*: The local filename of the csvw metadata file containing a Table Group object. This could be the filename returned by the [download_table_group](#download_table_group) function.
-- **data_folder** *(str)*: The filepath of a local folder where the downloaded CSV data is located and the SQLite database is stored.
-- **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
-- **csv_file_names** *(str or list)*: The csv_file_name values of the tables to be imported. If None then all CSV files are imported.
-- **overwrite_existing_tables** *(bool)*: If True, then before importing the CSV data any associated existing table in the database is removed and recreated.
-- **verbose (bool)**: If True, then this function prints intermediate variables and other useful information.
-
-Returns: None
-
-### get_normalized_metadata_table_group_dict
-
-Description: Returns a normalized version of a CSVW metadata file.
-
-```python
-get_normalized_metadata_table_group_dict(
-        metadata_document_location
-        )
-```
-- **metadata_document_location** *(str)*: The filepath or url of the CSVW metadata file containing a Table Group object.
-
-Returns: A dictionary of the normalized CSVW Table Group object.
-
-
-### get_available_csv_file_names
-
-Description: Returns the CSV file names of all tables in a CSVW metadata file.
-
-```python
-csvw_extra_functions.get_available_csv_file_names(
-        metadata_document_location
-)
-```
-- **metadata_document_location** *(str)*: The filepath or url of the CSVW metadata file containing a Table Group object.
-
-Returns: A list of the `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name` value in each table.
 
 
 ### get_metadata_table_group_dict
@@ -163,13 +131,39 @@ get_metadata_sql_table_names(
         )
 ```
 
-### convert_to_iterator
+
+### import_table_group_to_sqlite
+
+Description: Reads a CSVW metadata file and imports the CSV data into a SQLite database. This makes use of the [https://purl.org/berg/csvw_functions_extra](##CSVW-vocabulary) vocabulary.
+
+Method:
+
+1. If not already present, a SQLite database named `database_name` is created in the `data_folder`.
+2. For each table in the TableGroup object, the local CSV file is located in the `data_folder` using `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name`.
+3. The CSV file is imported into the SQLite database into a table named using `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name`. 
+
+Call signature:
 
 ```python
-convert_to_iterator(
-        x
-        )
+import_table_group_to_sqlite(
+        metadata_document_location,
+        data_folder,
+        database_name,
+        csv_file_name=None, 
+        remove_existing_tables=False,
+        verbose=False
 ```
+
+Arguments:
+- **metadata_document_location** *(str)*: The local filename of the csvw metadata file containing a Table Group object. This could be the filename returned by the [download_table_group](#download_table_group) function.
+- **data_folder** *(str)*: The filepath of a local folder where the downloaded CSV data is located and the SQLite database is stored.
+- **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
+- **csv_file_names** *(str or list)*: The csv_file_name values of the tables to be imported. If None then all CSV files are imported.
+- **overwrite_existing_tables** *(bool)*: If True, then before importing the CSV data any associated existing table in the database is removed and recreated.
+- **verbose (bool)**: If True, then this function prints intermediate variables and other useful information.
+
+Returns: None
+
 
 ### add_index
 
@@ -183,6 +177,35 @@ add_index(
         verbose=False
         )
 ```
+
+### convert_to_iterator
+
+```python
+convert_to_iterator(
+        x
+        )
+```
+
+### get_table_names_in_database
+
+```python
+get_table_names_in_database(
+        data_folder,
+        database_name        
+        )
+```
+
+
+### get_sql_table_names_in_database
+
+```python
+get_sql_table_names_in_database(
+        data_folder,
+        database_name,
+        )
+```
+
+Returns: A list ...
 
 ### get_where_clause_list
 
