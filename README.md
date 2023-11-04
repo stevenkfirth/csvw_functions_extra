@@ -84,6 +84,19 @@ Arguments:
 
 Returns: None
 
+### get_normalized_metadata_table_group_dict
+
+Description: Returns a normalized version of a CSVW metadata file.
+
+```python
+get_normalized_metadata_table_group_dict(
+        metadata_document_location
+        )
+```
+- **metadata_document_location** *(str)*: The filepath or url of the CSVW metadata file containing a Table Group object.
+
+Returns: A dictionary of the normalized CSVW Table Group object.
+
 
 ### get_available_csv_file_names
 
@@ -94,11 +107,14 @@ csvw_extra_functions.get_available_csv_file_names(
         metadata_document_location
 )
 ```
+- **metadata_document_location** *(str)*: The filepath or url of the CSVW metadata file containing a Table Group object.
 
 Returns: A list of the `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name` value in each table.
 
 
 ### get_metadata_table_group_dict
+
+Description: Returns a CSVW metadata Table Group object.
 
 ```python
 get_metadata_table_group_dict(
@@ -106,6 +122,12 @@ get_metadata_table_group_dict(
         metadata_filename
         )
 ```
+
+Arguments:
+- **metadata_filename** *(str)*: The filename of a CSVW metadata file which has been created by the [`download_table_group`](#download_table_group) method and is located in the data folder.
+
+Returns: A dictionary of the CSVW Table Group object.
+
 
 ### get_metadata_table_dict
 
