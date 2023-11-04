@@ -45,7 +45,7 @@ Description: Reads a CSVW metadata file and downloads the CSV files from remote 
 download_table_group(
         metadata_document_location,
         data_folder,
-        csv_file_name=None,  
+        csv_file_names=None,  
         overwrite_existing_files=False,
         verbose=False
         )
@@ -132,6 +132,19 @@ get_metadata_sql_table_names(
 ```
 
 
+### get_metadata_columns_codes
+
+```python
+get_metadata_columns_codes(
+        column_names,
+        table_name,
+        metadata_table_group_dict = None,
+        data_folder = None,
+        metadata_filename=None
+        )
+```
+
+
 ### import_table_group_to_sqlite
 
 Description: Reads a CSVW metadata file and imports the CSV data into a SQLite database. This makes use of the [https://purl.org/berg/csvw_functions_extra](##CSVW-vocabulary) vocabulary.
@@ -149,7 +162,7 @@ import_table_group_to_sqlite(
         metadata_document_location,
         data_folder,
         database_name,
-        csv_file_name=None, 
+        csv_file_names=None, 
         remove_existing_tables=False,
         verbose=False
 ```
@@ -232,6 +245,10 @@ run_sql(
 ## CSVW vocabulary
 
 ### Vocabulary on CSVW column metadata objects
+
+- `https://purl.org/berg/csvw_functions/vocab/codes`: (JSON object) An object (dictionary) relating any codes using in the column data to a string with the meaning of the codes. 
+
+- `https://purl.org/berg/csvw_functions/vocab/column_notes`: (string) A description of the contents of the column.
 
 - `https://purl.org/berg/csvw_functions_extra/vocab/sqlsetindex`: Boolean. If `true` then an SQLite index is set up on this column when the data is imported into the database.
 

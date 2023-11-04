@@ -49,6 +49,8 @@ def get_available_csv_file_names(
     
         x = metadata_table_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name')
         
+        print(x)
+        
         if not x is None:
             
             result.append(x['@value'])
@@ -336,17 +338,17 @@ def get_metadata_table_group_dict(
 
 def get_metadata_table_dict(
         sql_table_name,
-        metadata_table_group_dict=None,
-        data_folder=None,
-        metadata_filename=None
+        metadata_table_group_dict = None,
+        data_folder = None,
+        metadata_filename = None
         ):
     ""
     if metadata_table_group_dict is None:
         
-        metadata_table_group_dict=\
+        metadata_table_group_dict = \
             get_metadata_table_group_dict(
-                data_folder=data_folder,
-                metadata_filename=metadata_filename
+                data_folder = data_folder,
+                metadata_filename = metadata_filename
                 )
     
     for metadata_table_dict in metadata_table_group_dict['tables']:
@@ -365,17 +367,17 @@ def get_metadata_table_dict(
 def get_metadata_column_dict(
         column_name,
         sql_table_name,
-        metadata_table_group_dict=None,
-        data_folder=None,
-        metadata_filename=None
+        metadata_table_group_dict = None,
+        data_folder = None,
+        metadata_filename = None
         ):
     ""
     if metadata_table_group_dict is None:
         
         metadata_table_group_dict = \
             get_metadata_table_group_dict(
-                data_folder=data_folder,
-                metadata_filename=metadata_filename
+                data_folder = data_folder,
+                metadata_filename = metadata_filename
                 )
             
     metadata_table_dict = \
@@ -386,7 +388,7 @@ def get_metadata_column_dict(
     
     for metadata_column_dict in metadata_table_dict['tableSchema']['columns']:
         
-        if metadata_column_dict['name']==column_name:
+        if metadata_column_dict['name'] == column_name:
             
             break
         
@@ -398,9 +400,9 @@ def get_metadata_column_dict(
     
 
 def get_metadata_sql_table_names(
-        metadata_table_group_dict=None,
-        data_folder=None,
-        metadata_filename=None
+        metadata_table_group_dict = None,
+        data_folder = None,
+        metadata_filename = None
         ):
     """
     """
@@ -425,11 +427,82 @@ def get_metadata_sql_table_names(
     return result
 
 
+def get_metadata_column_codes(
+        column_name,
+        table_name,
+        metadata_table_group_dict = None,
+        data_folder = None,
+        metadata_filename=None
+        ):
+    ""
+    
+    metadata_column_dict = \
+        get_metadata_column_dict(
+                column_name,
+                table_name,
+                metadata_table_group_dict = metadata_table_group_dict,
+                data_folder = data_folder,
+                metadata_filename = metadata_filename
+                )
+        
+    datatype_base = metadata_column_dict['datatype']['base']
+        
+    codes = metadata_column_dict.get(
+        'https://purl.org/berg/csvw_functions/vocab/codes',
+        {}
+        )
+    
+    if datatype_base == 'integer':
+        x=lambda y:int(y) if y!='' else y
+    elif datatype_base in ['decimal','number']:
+        x=lambda y:float(y) if y!='' else y
+    elif datatype_base == 'string':
+        x=lambda y:y
+    else:
+        raise Exception
+    
+    codes = {x(k):v['@value'] for k,v in codes.items()}
+    
+    return codes
+
+
+def get_metadata_columns_codes(
+        column_names,
+        table_name,
+        metadata_table_group_dict = None,
+        data_folder = None,
+        metadata_filename = None
+        ):
+    """
+    """
+    column_names = convert_to_iterator(column_names)
+    
+    if metadata_table_group_dict is None:
+        
+        metadata_table_group_dict = \
+            get_metadata_table_group_dict(
+                data_folder = data_folder,
+                metadata_filename = metadata_filename
+                )
+
+    result = {}
+
+    for column_name in column_names:
+        
+        result[column_name] = \
+            get_metadata_column_codes(
+                    column_name,
+                    table_name,
+                    metadata_table_group_dict = metadata_table_group_dict,
+                    )
+        
+    return result
+
 
 #%% import data to sqlite
 
 def import_table_group_to_sqlite(
-        metadata_document_location,
+        metadata_filename,
         data_folder,
         database_name,
         csv_file_names=None,  # if none then all are imported
@@ -483,18 +556,20 @@ def import_table_group_to_sqlite(
     
     # get normalised metadata_table_group_dict
     metadata_table_group_dict = \
-        csvw_functions.validate_table_group_metadata(
-            metadata_document_location
-            )
+        get_metadata_table_group_dict(
+                data_folder,
+                metadata_filename
+                )
     #print(metadata_table_group_dict)
     
     # remove existing tables if requested
     for metadata_table_dict in metadata_table_group_dict['tables']:
     
         # get import info
-        csv_file_name, table_name, fp_csv, remove_existing_table = _get_import_info(
+        csv_file_name, table_name, fp_csv, remove_existing_table = \
+            _get_import_info(
                 metadata_table_dict,
-                metadata_document_location,
+                data_folder,
                 verbose=False,
                 ) 
         
@@ -645,7 +720,7 @@ def _drop_table(
 
 def _get_import_info(
         metadata_table_dict,
-        metadata_document_location,
+        data_folder,
         verbose=False,
         ):
     ""
@@ -659,7 +734,7 @@ def _get_import_info(
     url=metadata_table_dict['url']
     if verbose:
         print('url',url)
-    fp_csv=os.path.join(os.path.dirname(metadata_document_location),url)
+    fp_csv=os.path.join(data_folder,url)
     if verbose:
         print('fp_csv:', fp_csv)
     remove_existing_table=metadata_table_dict.get(
@@ -771,6 +846,9 @@ def convert_to_iterator(
             return x
         except TypeError:
             return [x]
+        
+        
+
 
 
 def get_table_names_in_database(
