@@ -278,44 +278,6 @@ def _download_table_and_metadata(
             
         
 
-
-    
-# def download_table(
-#         metadata_document_location,
-#         data_folder='_data',
-#         verbose=True
-#         ):
-#     """
-#     """
-    
-#     # create data_folder if it doesn't exist
-#     if not os.path.exists(data_folder):
-        
-#         os.makedirs(data_folder)
-    
-#     # get normalised metadata_table_dict
-#     metadata_table_dict = \
-#         csvw_functions.validate_table_metadata(
-#             metadata_document_location
-#             )
-#     #print(metadata_table_dict)
-    
-#     # download table
-#     fp_csv,metadata_table_dict=\
-#         _download_table(
-#             metadata_table_dict,
-#             data_folder,
-#             verbose=verbose
-#             )
-    
-#     # save updated metadata_table_dict
-#     fp_metadata=f'{fp_csv}-metadata.json'
-#     with open(fp_metadata, 'w') as f:
-#         json.dump(metadata_table_dict,f,indent=4)
-
-
-
-
 #%% downloaded csvw metadata file
 
 
@@ -427,7 +389,7 @@ def get_metadata_sql_table_names(
 
 def _get_metadata_column_codes(
         column_name,
-        table_name,
+        sql_table_name,
         metadata_table_group_dict = None,
         data_folder = None,
         metadata_filename=None
@@ -437,7 +399,7 @@ def _get_metadata_column_codes(
     metadata_column_dict = \
         get_metadata_column_dict(
                 column_name,
-                table_name,
+                sql_table_name,
                 metadata_table_group_dict = metadata_table_group_dict,
                 data_folder = data_folder,
                 metadata_filename = metadata_filename
@@ -466,7 +428,7 @@ def _get_metadata_column_codes(
 
 def get_metadata_columns_codes(
         column_names,
-        table_name,
+        sql_table_name,
         metadata_table_group_dict = None,
         data_folder = None,
         metadata_filename = None
@@ -490,7 +452,7 @@ def get_metadata_columns_codes(
         result[column_name] = \
             _get_metadata_column_codes(
                     column_name,
-                    table_name,
+                    sql_table_name,
                     metadata_table_group_dict = metadata_table_group_dict,
                     )
         
