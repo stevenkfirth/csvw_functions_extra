@@ -49,8 +49,6 @@ def get_available_csv_file_names(
     
         x = metadata_table_dict.get('https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name')
         
-        print(x)
-        
         if not x is None:
             
             result.append(x['@value'])
@@ -353,7 +351,7 @@ def get_metadata_table_dict(
     
     for metadata_table_dict in metadata_table_group_dict['tables']:
         
-        if metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/sql_table_name']['@value']==sql_table_name:
+        if metadata_table_dict['https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name']['@value']==sql_table_name:
             
             break
         
@@ -448,7 +446,7 @@ def get_metadata_column_codes(
     datatype_base = metadata_column_dict['datatype']['base']
         
     codes = metadata_column_dict.get(
-        'https://purl.org/berg/csvw_functions/vocab/codes',
+        'https://purl.org/berg/csvw_functions_extra/vocab/codes',
         {}
         )
     
@@ -851,7 +849,7 @@ def convert_to_iterator(
 
 
 
-def get_table_names_in_database(
+def get_all_table_names_in_database(
         data_folder,
         database_name        
         ):
@@ -875,20 +873,20 @@ def get_sql_table_names_in_database(
         ):
     """
     """
-    
-    
     sql_table_names = \
         get_metadata_sql_table_names(
                 metadata_table_group_dict=None,
                 data_folder=data_folder,
                 metadata_filename=metadata_filename
                 )
+    #print('sql_table_names',sql_table_names)
             
     all_table_names = \
-        get_table_names_in_database(
+        get_all_table_names_in_database(
                 data_folder,
                 database_name        
                 )
+    #print('all_table_names',all_table_names)
     
     result=[x for x in all_table_names if x in sql_table_names]
     

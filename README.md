@@ -199,10 +199,10 @@ convert_to_iterator(
         )
 ```
 
-### get_table_names_in_database
+### get_all_table_names_in_database
 
 ```python
-get_table_names_in_database(
+get_all_table_names_in_database(
         data_folder,
         database_name        
         )
