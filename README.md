@@ -13,20 +13,6 @@ The python package [`csvw_functions`](https://github.com/stevenkfirth/csvw_funct
 
 Description: Reads a CSVW metadata file and downloads the CSV files from remote locations. This makes use of the [https://purl.org/berg/csvw_functions_extra](#CSVW-vocabulary) vocabulary. 
 
-Method (for individual CSV files):
-
-1. For each table in the TableGroup object, the CSV file is downloaded using the url in `https://purl.org/berg/csvw_functions_extra/vocab/csv_download_url`.
-2. The CSV is saved in the `data_folder` using the filename in `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name`
-3. If the CSV file has an associated metadata file, this is downloaded using the url in `https://purl.org/berg/csvw_functions_extra/vocab/metadata_download_url`
-4. If step 3 occurs, the associated metadata file is saved in the `data_folder` using the filename in `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name` with the additional suffix in `https://purl.org/berg/csvw_functions_extra/vocab/metadata_file_suffix`.
-
-Method (for ZIP files):
-
-1. 
-
-
-Call signature:
-
 ```python
 download_table_group(
         metadata_document_location,
@@ -36,6 +22,23 @@ download_table_group(
         verbose=False
         )
 ```
+
+Method (for individual CSV files):
+
+1. For each table in the TableGroup object, the CSV file is downloaded using the url in `https://purl.org/berg/csvw_functions_extra/vocab/csv_download_url`.
+2. The CSV is saved in the `data_folder` using the filename in `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name`
+3. If the CSV file has an associated metadata file, this is downloaded using the url in `https://purl.org/berg/csvw_functions_extra/vocab/metadata_download_url`
+4. If step 3 occurs, the associated metadata file is saved in the `data_folder` using the filename in `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name` with the additional suffix in `https://purl.org/berg/csvw_functions_extra/vocab/metadata_file_suffix`.
+5. A new version of the CSVW metadata file is also saved in the data folder.
+
+Method (for ZIP files):
+
+1. 
+
+
+
+
+
 
 Arguments:
 - **metadata_document_location** *(str)*: The filepath or url of the CSVW metadata file containing a Table Group object.
@@ -80,6 +83,105 @@ Arguments:
 - **verbose (bool)**: If True, then this function prints intermediate variables and other useful information.
 
 Returns: None
+
+
+### get_available_csv_file_names
+
+Description: Returns the CSV file names of all tables in a CSVW metadata file.
+
+```python
+csvw_extra_functions.get_available_csv_file_names(
+        metadata_document_location
+)
+```
+
+Returns: A list of the `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name` value in each table.
+
+
+### get_metadata_table_group_dict
+
+```python
+get_metadata_table_group_dict(
+        data_folder,
+        metadata_filename
+        )
+```
+
+### get_metadata_table_dict
+
+```python
+get_metadata_table_dict(
+        sql_table_name,
+        metadata_table_group_dict=None,
+        data_folder=None,
+        metadata_filename=None
+        )
+```
+
+
+### get_metadata_column_dict
+
+```python
+get_metadata_column_dict(
+        column_name,
+        table_name,
+        metadata_table_group_dict=None,
+        data_folder=None,
+        metadata_filename=None
+        )
+```
+
+### get_metadata_sql_table_names
+
+```python
+get_metadata_sql_table_names(
+        metadata_table_group_dict=None,
+        data_folder=None,
+        metadata_filename=None
+        )
+```
+
+### convert_to_iterator
+
+```python
+convert_to_iterator(
+        x
+        )
+```
+
+### add_index
+
+```python
+add_index(
+        fields,
+        table_name,
+        data_folder,
+        database_name,
+        unique=False,
+        verbose=False
+        )
+```
+
+### get_where_clause_list
+
+```python
+get_where_clause_list(
+        d
+        )
+```
+
+### run_sql
+
+```python
+run_sql(
+        sql_query,
+        data_folder,
+        database_name,
+        verbose=False
+        )
+```
+
+
 
 
 ## CSVW vocabulary

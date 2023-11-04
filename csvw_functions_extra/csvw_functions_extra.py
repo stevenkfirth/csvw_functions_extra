@@ -312,7 +312,7 @@ def get_metadata_table_group_dict(
 
 
 def get_metadata_table_dict(
-        table_name,
+        sql_table_name,
         metadata_table_group_dict=None,
         data_folder=None,
         metadata_filename=None
@@ -328,7 +328,7 @@ def get_metadata_table_dict(
     
     for metadata_table_dict in metadata_table_group_dict['tables']:
         
-        if metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/sql_table_name']['@value']==table_name:
+        if metadata_table_dict['https://purl.org/berg/csvw_functions/vocab/sql_table_name']['@value']==sql_table_name:
             
             break
         
