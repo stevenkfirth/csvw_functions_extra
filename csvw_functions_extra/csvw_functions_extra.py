@@ -425,7 +425,7 @@ def get_metadata_sql_table_names(
     return result
 
 
-def get_metadata_column_codes(
+def _get_metadata_column_codes(
         column_name,
         table_name,
         metadata_table_group_dict = None,
@@ -488,7 +488,7 @@ def get_metadata_columns_codes(
     for column_name in column_names:
         
         result[column_name] = \
-            get_metadata_column_codes(
+            _get_metadata_column_codes(
                     column_name,
                     table_name,
                     metadata_table_group_dict = metadata_table_group_dict,
@@ -830,25 +830,9 @@ def add_index(
             print('Index not created - already exists in table')
 
 
-def convert_to_iterator(
-        x
-        ):
-    ""
-    if x is None:
-        return []
-    elif isinstance(x,str):
-        return [x]
-    else:
-        try:   
-            _ = iter(x)
-            return x
-        except TypeError:
-            return [x]
+
         
         
-
-
-
 def get_all_table_names_in_database(
         data_folder,
         database_name        
@@ -943,7 +927,22 @@ def run_sql(
     return result
 
 
+#%% utility functions
 
+def convert_to_iterator(
+        x
+        ):
+    ""
+    if x is None:
+        return []
+    elif isinstance(x,str):
+        return [x]
+    else:
+        try:   
+            _ = iter(x)
+            return x
+        except TypeError:
+            return [x]
         
         
         

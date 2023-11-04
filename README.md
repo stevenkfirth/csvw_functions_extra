@@ -20,7 +20,7 @@ get_normalized_metadata_table_group_dict(
 ```
 - **metadata_document_location** *(str)*: The filepath or url of the CSVW metadata file containing a Table Group object.
 
-Returns: A dictionary of the normalized CSVW Table Group object.
+Returns *(dict)*: A dictionary of the normalized CSVW Table Group object.
 
 
 ### get_available_csv_file_names
@@ -34,7 +34,7 @@ csvw_extra_functions.get_available_csv_file_names(
 ```
 - **metadata_document_location** *(str)*: The filepath or url of the CSVW metadata file containing a Table Group object.
 
-Returns: A list of the `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name` value in each table.
+Returns *(list)*: A list of the `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name` value in each table.
 
 
 ### download_table_group
@@ -67,7 +67,6 @@ Method (for ZIP files):
 
 
 
-
 Arguments:
 - **metadata_document_location** *(str)*: The filepath or url of the CSVW metadata file containing a Table Group object.
 - **data_folder** *(str)*: The filepath of a local folder where the downloaded CSV data is to be saved to.
@@ -75,9 +74,7 @@ Arguments:
 - **overwrite_existing_files** *(bool)*: If True, then any existing CSV files in data_folder will be overwritten. If False, then no download occurs if there is an existing CSV file in data_folder.
 - **verbose** *(bool)*: If True, then this function prints intermediate variables and other useful information.
 
-Returns: The local filename of the updated CSVW metadata file containing the new URLs for the newly downloaded tables.
-
-Return type: *str*
+Returns *(str)*: The local filename of the updated CSVW metadata file containing the new URLs for the newly downloaded tables.
 
 
 ### get_metadata_table_group_dict
@@ -92,12 +89,15 @@ get_metadata_table_group_dict(
 ```
 
 Arguments:
+- **data_folder** *(str)*: The filepath of a local folder where the normalized CSVW metadata file is saved.
 - **metadata_filename** *(str)*: The filename of a CSVW metadata file which has been created by the [`download_table_group`](#download_table_group) method and is located in the data folder.
 
-Returns: A dictionary of the CSVW Table Group object.
+Returns *(dict)*: A dictionary of the CSVW Table Group object.
 
 
 ### get_metadata_table_dict
+
+Description: Returns a CSVW metadata Table object.
 
 ```python
 get_metadata_table_dict(
@@ -108,20 +108,46 @@ get_metadata_table_dict(
         )
 ```
 
+Arguments:
+- **sql_table_name** *(str)*: The `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name` value of the table.
+- **metadata_table_group_dict** *(dict)*: A dictionary of a metadata Table Group object, such as the return value of [`get_metadata_table_group_dict`](#get_metadata_table_group_dict).
+- **data_folder** *(str)*: The filepath of a local folder where the normalized CSVW metadata file is saved.
+- **metadata_filename** *(str)*: The filename of a CSVW metadata file which has been created by the [`download_table_group`](#download_table_group) method and is located in the data folder.
+
+Returns *(dict)*: A dictionary of the CSVW Table object.
+
+Notes: If supplied the `metadata_table_group_dict` will be used to access the table object. If not supplied then the table object is accessed using the file located using `data_folder` and `metadata_filename`.
+
 
 ### get_metadata_column_dict
+
+Description: Returns a CSVW metadata Column object.
 
 ```python
 get_metadata_column_dict(
         column_name,
-        table_name,
+        sql_table_name,
         metadata_table_group_dict=None,
         data_folder=None,
         metadata_filename=None
         )
 ```
 
+Arguments:
+- **column_name** *(str)*: The `name` value of a column in a CSVW TableSchema object.
+- **sql_table_name** *(str)*: The `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name` value of the table.
+- **metadata_table_group_dict** *(dict)*: A dictionary of a metadata Table Group object, such as the return value of [`get_metadata_table_group_dict`](#get_metadata_table_group_dict).
+- **data_folder** *(str)*: The filepath of a local folder where the normalized CSVW metadata file is saved.
+- **metadata_filename** *(str)*: The filename of a CSVW metadata file which has been created by the [`download_table_group`](#download_table_group) method and is located in the data folder.
+
+Notes: If supplied the `metadata_table_group_dict` will be used to access the table object. If not supplied then the table object is accessed using the file located using `data_folder` and `metadata_filename`.
+
+Returns *(dict)*: A dictionary of the CSVW Column object.
+
+
 ### get_metadata_sql_table_names
+
+Description: Returns a list of the SQL table names in the CSVW metadata file.
 
 ```python
 get_metadata_sql_table_names(
@@ -131,18 +157,40 @@ get_metadata_sql_table_names(
         )
 ```
 
+Arguments:
+- **metadata_table_group_dict** *(dict)*: A dictionary of a metadata Table Group object, such as the return value of [`get_metadata_table_group_dict`](#get_metadata_table_group_dict).
+- **data_folder** *(str)*: The filepath of a local folder where the normalized CSVW metadata file is saved.
+- **metadata_filename** *(str)*: The filename of a CSVW metadata file which has been created by the [`download_table_group`](#download_table_group) method and is located in the data folder.
+
+Notes: If supplied the `metadata_table_group_dict` will be used to access the table object. If not supplied then the table object is accessed using the file located using `data_folder` and `metadata_filename`.
+
+Returns *(list)*: A list of the `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name` values of all tables in the CSVW metadata file.
+
 
 ### get_metadata_columns_codes
+
+Description: Returns lookup dictionaries for the NEED lookup codes for one or more columns.
 
 ```python
 get_metadata_columns_codes(
         column_names,
-        table_name,
+        sql_table_name,
         metadata_table_group_dict = None,
         data_folder = None,
         metadata_filename=None
         )
 ```
+
+Arguments:
+- **column_name** *(str)*: The `name` value of a column in a CSVW TableSchema object.
+- **sql_table_name** *(str)*: The `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name` value of the table.
+- **metadata_table_group_dict** *(dict)*: A dictionary of a metadata Table Group object, such as the return value of [`get_metadata_table_group_dict`](#get_metadata_table_group_dict).
+- **data_folder** *(str)*: The filepath of a local folder where the normalized CSVW metadata file is saved.
+- **metadata_filename** *(str)*: The filename of a CSVW metadata file which has been created by the [`download_table_group`](#download_table_group) method and is located in the data folder.
+
+Returns *(dict of dicts)*: A dictionary with:
+- keys: the names of the column(s)
+- values: a dictionary with keys as lookup codes and values as code descriptions.
 
 
 ### import_table_group_to_sqlite
