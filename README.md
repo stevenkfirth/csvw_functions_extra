@@ -14,7 +14,7 @@ The python package [`csvw_functions`](https://github.com/stevenkfirth/csvw_funct
 Description: Returns a normalized version of a CSVW metadata file.
 
 ```python
-get_normalized_metadata_table_group_dict(
+csvw_functions_extra.get_normalized_metadata_table_group_dict(
         metadata_document_location
         )
 ```
@@ -42,7 +42,7 @@ Returns *(list)*: A list of the `https://purl.org/berg/csvw_functions_extra/voca
 Description: Reads a CSVW metadata file and downloads the CSV files from remote locations. This makes use of the [https://purl.org/berg/csvw_functions_extra](#CSVW-vocabulary) vocabulary. 
 
 ```python
-download_table_group(
+csvw_functions_extra.download_table_group(
         metadata_document_location,
         data_folder,
         csv_file_names=None,  
@@ -82,7 +82,7 @@ Returns *(str)*: The local filename of the updated CSVW metadata file containing
 Description: Returns a CSVW metadata Table Group object.
 
 ```python
-get_metadata_table_group_dict(
+csvw_functions_extra.get_metadata_table_group_dict(
         data_folder,
         metadata_filename
         )
@@ -100,7 +100,7 @@ Returns *(dict)*: A dictionary of the CSVW Table Group object.
 Description: Returns a CSVW metadata Table object.
 
 ```python
-get_metadata_table_dict(
+csvw_functions_extra.get_metadata_table_dict(
         sql_table_name,
         metadata_table_group_dict=None,
         data_folder=None,
@@ -124,7 +124,7 @@ Notes: If supplied the `metadata_table_group_dict` will be used to access the ta
 Description: Returns a CSVW metadata Column object.
 
 ```python
-get_metadata_column_dict(
+csvw_functions_extra.get_metadata_column_dict(
         column_name,
         sql_table_name,
         metadata_table_group_dict=None,
@@ -150,7 +150,7 @@ Returns *(dict)*: A dictionary of the CSVW Column object.
 Description: Returns a list of the SQL table names in the CSVW metadata file.
 
 ```python
-get_metadata_sql_table_names(
+csvw_functions_extra.get_metadata_sql_table_names(
         metadata_table_group_dict=None,
         data_folder=None,
         metadata_filename=None
@@ -172,7 +172,7 @@ Returns *(list)*: A list of the `https://purl.org/berg/csvw_functions_extra/voca
 Description: Returns lookup dictionaries for the NEED lookup codes for one or more columns.
 
 ```python
-get_metadata_columns_codes(
+csvw_functions_extra.get_metadata_columns_codes(
         column_names,
         sql_table_name,
         metadata_table_group_dict = None,
@@ -202,11 +202,13 @@ Method:
 1. If not already present, a SQLite database named `database_name` is created in the `data_folder`.
 2. For each table in the TableGroup object, the local CSV file is located in the `data_folder` using `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name`.
 3. The CSV file is imported into the SQLite database into a table named using `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name`. 
+4. Primary key field(s) are set up using the information in the CSVW TableSchema `primaryKey` value.
+5. Indexes are set up on columns if `https://purl.org/berg/csvw_functions_extra/vocab/sqlsetindex` is True.
 
 Call signature:
 
 ```python
-import_table_group_to_sqlite(
+csvw_functions_extra.import_table_group_to_sqlite(
         metadata_document_location,
         data_folder,
         database_name,
@@ -228,8 +230,10 @@ Returns: None
 
 ### add_index
 
+Description: Adds an SQlite index to a column in a SQlite database.
+
 ```python
-add_index(
+csvw_functions_extra.add_index(
         fields,
         table_name,
         data_folder,
@@ -239,47 +243,74 @@ add_index(
         )
 ```
 
-### convert_to_iterator
+Arguments:
+- **fields** *(str or list): The field(s) (i.e. columns) to add the index to.
+- **table_name** *(str)*: The name of the table in the SQLite database. 
+- **data_folder** *(str)*: The filepath of a local folder where the SQLite database is stored.
+- **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
+- **unique** *(bool)*: If True, then a unique index is created.
 
-```python
-convert_to_iterator(
-        x
-        )
-```
 
 ### get_all_table_names_in_database
 
+Description: Returns a list of all table names in the database.
+
 ```python
-get_all_table_names_in_database(
+csvw_functions_extra.get_all_table_names_in_database(
         data_folder,
         database_name        
         )
 ```
 
+Arguments:
+- **data_folder** *(str)*: The filepath of a local folder where the SQLite database is stored.
+- **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
+
+Returns *(list)*: A list of all table names in the SQLite database.
+
 
 ### get_sql_table_names_in_database
 
+Description: Returns a list of table names in the database which are also present in the CSVW metadata file.
+
 ```python
-get_sql_table_names_in_database(
+csvw_functions_extra.get_sql_table_names_in_database(
         data_folder,
         database_name,
+        metadata_filename
         )
 ```
 
-Returns: A list ...
+Arguments:
+- **data_folder** *(str)*: The filepath of a local folder where the SQLite database is stored.
+- **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
+- **metadata_filename** *(str)*: The filename of a CSVW metadata file which has been created by the [`download_table_group`](#download_table_group) method and is located in the data folder.
+
+Returns: A list of table names in the database which are also present as `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name` values in the CSVW metadata file.
+
 
 ### get_where_clause_list
 
+Description: Returns a WHERE clause for use in a SQL statement.
+
 ```python
-get_where_clause_list(
+csvw_functions_extra.get_where_clause_list(
         d
         )
 ```
 
+Arguments:
+- **d** *(dict)*: A dictionary of items to filter on where the keys are the field (column) names and the values are data values to filter on.
+
+Returns *(str)*: A WHERE string for use in a SQL statement.
+
+
 ### run_sql
 
+Description: Runs an SQL query on the database and returns the result.
+
 ```python
-run_sql(
+csvw_functions_extra.run_sql(
         sql_query,
         data_folder,
         database_name,
@@ -287,7 +318,31 @@ run_sql(
         )
 ```
 
+Arguments:
+- **sql_query** *(str)*: A SQL query.
+- **data_folder** *(str)*: The filepath of a local folder where the SQLite database is stored.
+- **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
 
+Returns *(list)*: A list of dictionaries where each dictionary contains one set of results - keys are the field (column) names and values are the data values.
+
+
+### convert_to_iterator
+
+Description: Converts a value to a list.
+
+```python
+csvw_functions_extra.convert_to_iterator(
+        x
+        )
+```
+
+Arguments:
+**x** *(int, float, string, list...): The value to be converted to an iterator.
+
+Returns *(list)*: A list of value(s)
+- A number is converted to a list of the number, e.g. `2` -> `[2]`
+- A string to a list of the string, e.g. `'abc'` -> `['abc']`
+- A list (or other iterable) remains the same, e.g. `[1,2,3]` -> `[1,2,3]`
 
 
 ## CSVW vocabulary
