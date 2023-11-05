@@ -51,21 +51,28 @@ csvw_functions_extra.download_table_group(
         )
 ```
 
-Method (for individual CSV files):
+For each table in the TableGroup object, the method is:
 
-1. For each table in the TableGroup object, the CSV file is downloaded using the url in `https://purl.org/berg/csvw_functions_extra/vocab/csv_download_url`.
+i) For individual CSV files:
+
+1. The CSV file is downloaded using the url in `https://purl.org/berg/csvw_functions_extra/vocab/csv_download_url`.
 2. The CSV is saved in the `data_folder` using the filename in `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name`
-3. If the CSV file has an associated metadata file, this is downloaded using the url in `https://purl.org/berg/csvw_functions_extra/vocab/metadata_download_url`
-4. If step 3 occurs, the associated metadata file is saved in the `data_folder` using the filename in `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name` with the additional suffix in `https://purl.org/berg/csvw_functions_extra/vocab/metadata_file_suffix`.
-5. A new version of the CSVW metadata file is also saved in the data folder.
 
-Method (for ZIP files):
+ii) For ZIP files:
 
-1. 
+1. The ZIP file is downloaded using the url in `https://purl.org/berg/csvw_functions_extra/vocab/zip_download_url`.
+2. The ZIP is saved in the `data_folder` using the filename in `https://purl.org/berg/csvw_functions_extra/vocab/zip_file_name`
+3. The CSV file is extracted from the ZIP file using the path in `https://purl.org/berg/csvw_functions_extra/vocab/csv_zip_extract_path`. 
+4. The CSV is saved in the `data_folder` using the filename in `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name`
 
+iii) If an associated metadata file is present (this is separate to the CSVW metadata file):
 
+1. This is downloaded using the url in `https://purl.org/berg/csvw_functions_extra/vocab/metadata_download_url`
+2. If step 3 occurs, the associated metadata file is saved in the `data_folder` using the filename in `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name` with the additional suffix in `https://purl.org/berg/csvw_functions_extra/vocab/metadata_file_suffix`.
 
+iv) For all cases:
 
+1. A new version of the normalized CSVW metadata file is also saved in the data folder, with Table `url` values linking to the newly downloaded CSV files.
 
 Arguments:
 - **metadata_document_location** *(str)*: The filepath or url of the CSVW metadata file containing a Table Group object.
@@ -357,13 +364,29 @@ Returns *(list)*: A list of value(s)
 
 ### Vocabulary on CSVW table metadata objects
 
+#### Required:
+
+- `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name`: The name for the newly downloaded CSV file. The CSV file is saved in the data folder using this name.
+
+- `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name`: The name to be used for the database table when importing the CSV file into a SQLite database.
+
+#### For CSV file downloads:
+
 - `https://purl.org/berg/csvw_functions_extra/vocab/csv_download_url`: The url where the remote CSV file can be downloaded from.
 
-- `https://purl.org/berg/csvw_functions_extra/vocab/csv_file_name`: The name for the newly downloaded CSV file.
+#### For ZIP downloads:
+
+- `https://purl.org/berg/csvw_functions_extra/vocab/zip_download_url`: The url where the remote ZIP file can be downloaded from.
+
+- `https://purl.org/berg/csvw_functions_extra/vocab/zip_file_name`: The name for the newly downloaded ZIP file. The ZIP file is saved in the data folder using this name.
+
+- `https://purl.org/berg/csvw_functions_extra/vocab/csv_zip_extract_path`: The path to extract the CSV file from the ZIP file.
+            
+#### Optional:
 
 - `https://purl.org/berg/csvw_functions_extra/vocab/metadata_download_url`: The url where an associated metadata file for the CSV file can be downloaded from.
 
 - `https://purl.org/berg/csvw_functions_extra/vocab/metadata_file_suffix`: A suffix to use when saving the associated metadata file.
 
-- `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name`: The name to be used for the database table when importing the CSV file into a SQLite database.
+
             
