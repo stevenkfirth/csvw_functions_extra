@@ -562,7 +562,7 @@ def import_table_group_to_sqlite(
         # get import info
         csv_file_name, table_name, fp_csv, remove_existing_table = _get_import_info(
                 metadata_table_dict,
-                metadata_document_location,
+                data_folder,
                 verbose=False,
                 ) 
             

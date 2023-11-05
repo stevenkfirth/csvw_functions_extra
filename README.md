@@ -216,7 +216,7 @@ Call signature:
 
 ```python
 csvw_functions_extra.import_table_group_to_sqlite(
-        metadata_document_location,
+        metadata_filename,
         data_folder,
         database_name,
         csv_file_names=None, 
@@ -225,7 +225,7 @@ csvw_functions_extra.import_table_group_to_sqlite(
 ```
 
 Arguments:
-- **metadata_document_location** *(str)*: The local filename of the csvw metadata file containing a Table Group object. This could be the filename returned by the [download_table_group](#download_table_group) function.
+- **metadata_filename** *(str)*: The filename of a CSVW metadata file which has been created by the [`download_table_group`](#download_table_group) method and is located in the data folder.
 - **data_folder** *(str)*: The filepath of a local folder where the downloaded CSV data is located and the SQLite database is stored.
 - **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
 - **csv_file_names** *(str or list)*: The csv_file_name values of the tables to be imported. If None then all CSV files are imported.

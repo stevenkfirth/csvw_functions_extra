@@ -22,7 +22,7 @@ class EXTRA(unittest.TestCase):
         csvw_functions_extra.download_table_group(
             metadata_document_location=fp_table_group_metadata,
             data_folder='_data',
-            csv_file_name='Local_Authority_District_to_Region_December_2022.csv',
+            csv_file_names='Local_Authority_District_to_Region_December_2022.csv',
             overwrite_existing_files=True,
             verbose=True
             )
@@ -32,11 +32,11 @@ class EXTRA(unittest.TestCase):
         ""
         
         csvw_functions_extra.import_table_group_to_sqlite(
-            '_data\extra_tables-metadata.json',
+            metadata_filename='extra_tables-metadata.json',
             data_folder='_data',
             database_name='data.sqlite',
-            csv_file_name='Local_Authority_District_to_Region_December_2022.csv',
-            remove_existing_tables=True,
+            csv_file_names='Local_Authority_District_to_Region_December_2022.csv',
+            overwrite_existing_tables=True,
             verbose=True
             )
         
