@@ -276,6 +276,51 @@ Arguments:
 Returns *(list)*: A list of all table names in the SQLite database.
 
 
+### get_field_names
+
+Description: Returns a list of the field names in a database table.
+
+```python
+csvw_functions_extra.get_field_names(
+        table_name,
+        data_folder,
+        database_name,
+        verbose=False
+        )
+```
+
+Arguments:
+- **table_name** *(str)*: The name of the table in the SQLite database. 
+- **data_folder** *(str)*: The filepath of a local folder where the SQLite database is stored.
+- **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
+
+Returns *(list)*: A list of all field names of the table in the SQLite database.
+
+### get_rows
+
+Description: Returns one or more rows from a table in the database.
+
+```python
+get_rows(
+        table_name,
+        data_folder,
+        database_name,
+        filter_by = None,  # a dict
+        fields = None,  # or a list of field names
+        verbose = False
+        )
+```
+
+Arguments:
+- **table_name** *(str)*: The name of the table in the SQLite database. 
+- **data_folder** *(str)*: The filepath of a local folder where the SQLite database is stored.
+- **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
+- **filter_by** *(dict)*: A dictionary with information to filter the rows - see
+- **fields** *(list)*: A list of field names to return.
+
+Returns *(list)*: A list of result dictionaries.
+
+
 ### get_sql_table_names_in_database
 
 Description: Returns a list of table names in the database which are also present in the CSVW metadata file.
@@ -294,22 +339,6 @@ Arguments:
 - **metadata_filename** *(str)*: The filename of a CSVW metadata file which has been created by the [`download_table_group`](#download_table_group) method and is located in the data folder.
 
 Returns: A list of table names in the database which are also present as `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name` values in the CSVW metadata file.
-
-
-### get_where_clause_list
-
-Description: Returns a WHERE clause for use in a SQL statement.
-
-```python
-csvw_functions_extra.get_where_clause_list(
-        d
-        )
-```
-
-Arguments:
-- **d** *(dict)*: A dictionary of items to filter on where the keys are the field (column) names and the values are data values to filter on.
-
-Returns *(str)*: A WHERE string for use in a SQL statement.
 
 
 ### run_sql
@@ -350,6 +379,24 @@ Returns *(list)*: A list of value(s)
 - A number is converted to a list of the number, e.g. `2` -> `[2]`
 - A string to a list of the string, e.g. `'abc'` -> `['abc']`
 - A list (or other iterable) remains the same, e.g. `[1,2,3]` -> `[1,2,3]`
+
+
+### get_where_clause_list
+
+Description: Returns a WHERE clause for use in a SQL statement.
+
+```python
+csvw_functions_extra.get_where_clause_list(
+        d
+        )
+```
+
+Arguments:
+- **d** *(dict)*: A dictionary of items to filter on where the keys are the field (column) names and the values are data values to filter on.
+
+Returns *(str)*: A WHERE string for use in a SQL statement.
+
+
 
 
 ## CSVW vocabulary

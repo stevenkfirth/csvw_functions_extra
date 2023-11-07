@@ -247,7 +247,7 @@ def _download_table_and_metadata(
                     )
         
         # extract csv
-        if not os.path.exists(fp_csv):
+        if overwrite_existing_files or not os.path.exists(fp_csv):
             
             if verbose:
                 print('extracting csv file...')
@@ -791,9 +791,6 @@ def add_index(
         if verbose:
             print('Index not created - already exists in table')
 
-
-
-        
         
 def get_all_table_names_in_database(
         data_folder,
@@ -810,6 +807,119 @@ def get_all_table_names_in_database(
     result = [x[0] for x in result]
     
     return result
+
+
+def get_field_names(
+        table_name,
+        data_folder,
+        database_name,
+        verbose=False
+        ):
+    ""
+    fp_database=os.path.join(data_folder,database_name)
+    
+    if verbose:
+        print('fp_database:',fp_database)
+        
+        
+    query=f'PRAGMA table_info({table_name});'
+    if verbose:
+        print(query)
+        
+    with sqlite3.connect(fp_database) as conn:
+        c = conn.cursor()
+        
+        return [x[1] for x in c.execute(query).fetchall()]
+    
+    
+    
+def get_row_count(
+        table_name,
+        data_folder,
+        database_name,
+        filter_by=None,
+        group_by=None,
+        verbose=False
+        ):
+    ""
+    fp_database=os.path.join(data_folder,database_name)
+    if verbose:
+        print('fp_database:',fp_database)
+    
+    where_string=\
+        get_where_string(
+            filter_by
+            )
+    if verbose:
+        print('where_string', where_string)
+        
+    group_by_fields, group_by_string = \
+        get_group_by_string(
+            group_by
+            )
+    if verbose:
+        print('group_by_fields',group_by_fields)
+        print('group_by_string',group_by_string)
+        
+    query=f"""
+        SELECT 
+            {group_by_fields} COUNT(*) AS COUNT
+        FROM 
+            {table_name} 
+        {where_string}
+        {group_by_string}
+        """
+        
+    if verbose:
+        print(query)
+            
+    with sqlite3.connect(fp_database) as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        result=[dict(x) for x in c.execute(query).fetchall()]
+        
+    return result
+
+
+def get_rows(
+        table_name,
+        data_folder,
+        database_name,
+        filter_by = None,  # a dict
+        fields = None,  # or a list of field names
+        verbose = False
+        ):
+    ""
+    fp_database=os.path.join(data_folder,database_name)
+    
+    field_string=\
+        get_field_string(
+            fields
+            )
+    
+    where_string=\
+        get_where_string(
+            filter_by
+            )
+        
+    query=f"""
+        SELECT 
+            {field_string}
+        FROM 
+            {table_name} 
+            {where_string}
+        """
+        
+    if verbose:
+        print(query)
+            
+    with sqlite3.connect(fp_database) as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        result=[dict(x) for x in c.execute(query).fetchall()]
+        
+    return result
+
 
 
 def get_sql_table_names_in_database(
@@ -838,34 +948,6 @@ def get_sql_table_names_in_database(
     
     return result
     
-        
-def get_where_clause_list(
-        d
-        ):
-    ""
-    conditions=[]
-    
-    for k,v in d.items():
-        
-        if not v is None:
-            
-            x=convert_to_iterator(v)
-            x=[f'"{x}"' if isinstance(x,str) else f'{x}' for x in x] 
-            if len(x)==1:
-                x=f'("{k}" = {x[0]})'
-            elif len(x)>1:
-                x=','.join(x)
-                x=f'("{k}" IN ({x}))'
-            conditions.append(x)
-            
-    result=''
-            
-    if len(conditions)>0:
-        
-        x=' AND '.join(conditions)
-        result=f'WHERE {x}'
-        
-    return result
 
 
 def run_sql(
@@ -907,10 +989,128 @@ def convert_to_iterator(
             return [x]
         
         
+# def get_where_clause_list(
+#         d
+#         ):
+#     ""
+#     conditions=[]
+    
+#     for k,v in d.items():
+        
+#         if not v is None:
+            
+#             x=convert_to_iterator(v)
+#             x=[f'"{x}"' if isinstance(x,str) else f'{x}' for x in x] 
+#             if len(x)==1:
+#                 x=f'("{k}" = {x[0]})'
+#             elif len(x)>1:
+#                 x=','.join(x)
+#                 x=f'("{k}" IN ({x}))'
+#             conditions.append(x)
+            
+#     result=''
+            
+#     if len(conditions)>0:
+        
+#         x=' AND '.join(conditions)
+#         result=f'WHERE {x}'
+        
+#     return result
+
+        
+def get_field_string(
+        fields = None
+        ):
+    ""
+    if fields is None or fields=='':
+        fields_string='*'
+    else:
+        fields=convert_to_iterator(fields)
+        fields_string='","'.join(fields)
+        fields_string=f' "{fields_string}" '
+    
+    return fields_string
+
+
+def get_group_by_string(
+        group_by = None
+        ):
+    ""
+    if group_by is None:
+        groups=[]
+    else:
+        groups=convert_to_iterator(group_by)
+        
+    if len(groups)==0:
+        group_by_fields=''
+        group_by_string=''
+    else:
+        x='","'.join(groups)
+        group_by_fields=f' "{x}", '
+        group_by_string=f'GROUP BY "{x}" '
+        
+    return group_by_fields, group_by_string
+
+
+def get_where_string(
+        filter_by = None # a dict
+        ):
+    ""
+    if filter_by is None:
+        
+        filter_by=dict()
+    
+    where=[]
+    
+    for field_name,filter_value in filter_by.items():
+        
+        if isinstance(filter_value,dict):
+            
+            if len(filter_value)>1:
+                raise Exception  # only a single filter keyword to be passed
+                
+            x=list(filter_value)[0]
+            y=filter_value[x]
+            
+            if x=='BETWEEN':
+                
+                if not len(y)==2:
+                    
+                    raise Exception
+                    
+                else:
+                    
+                    filter_operator='BETWEEN'
+                    filter_string=f'"{y[0]}" AND "{y[1]}"'
+                        
+            else:
+                
+                raise NotImplementedError
+            
+        else:
+        
+            filter_value=convert_to_iterator(filter_value)
+            if len(filter_value)==1:
+                filter_string=filter_value[0]
+                filter_string=f'"{filter_string}"'
+                filter_operator='='
+            else:
+                filter_string='","'.join(filter_value)
+                filter_string=f'("{filter_string}")'
+                filter_operator='IN'
+            
+        where.append(f'("{field_name}" {filter_operator} {filter_string})')
+    
+    if len(where)==0:
+        where_string=''
+    else:
+        x=' AND '.join(where)
+        where_string=f' WHERE {x}'
+
+    return where_string
         
         
-        
-        
+              
         
         
         
