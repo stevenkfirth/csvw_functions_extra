@@ -176,7 +176,7 @@ Returns *(list)*: A list of the `https://purl.org/berg/csvw_functions_extra/voca
 
 ### get_metadata_columns_codes
 
-Description: Returns lookup dictionaries for the NEED lookup codes for one or more columns.
+Description: Returns lookup dictionaries for the lookup codes for one or more columns.
 
 ```python
 csvw_functions_extra.get_metadata_columns_codes(
