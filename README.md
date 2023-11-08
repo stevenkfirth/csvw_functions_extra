@@ -316,7 +316,7 @@ Arguments:
 - **table_name** *(str)*: The name of the table in the SQLite database. 
 - **data_folder** *(str)*: The filepath of a local folder where the SQLite database is stored.
 - **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
-- **filter_by** *(dict)*: A dictionary with information to filter the rows - see ...
+- **filter_by** *(dict)*: A dictionary with information to filter the rows - see [`get_where_string`](#get_where_string).
 - **group_by** *(list)*: A list of field names to group by.
 
 Returns *(list)*: A list of result dictionaries.
@@ -331,8 +331,8 @@ csvw_functions_extra.get_rows(
         table_name,
         data_folder,
         database_name,
-        filter_by = None,  # a dict
-        fields = None,  # or a list of field names
+        filter_by = None,  
+        fields = None,  
         verbose = False
         )
 ```
@@ -341,7 +341,7 @@ Arguments:
 - **table_name** *(str)*: The name of the table in the SQLite database. 
 - **data_folder** *(str)*: The filepath of a local folder where the SQLite database is stored.
 - **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
-- **filter_by** *(dict)*: A dictionary with information to filter the rows - see ...
+- **filter_by** *(dict)*: A dictionary with information to filter the rows - see [`get_where_string`](#get_where_string).
 - **fields** *(list)*: A list of field names to return.
 
 Returns *(list)*: A list of result dictionaries.
