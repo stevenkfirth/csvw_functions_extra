@@ -296,12 +296,38 @@ Arguments:
 
 Returns *(list)*: A list of all field names of the table in the SQLite database.
 
+
+### get_row_count
+
+Description: Returns the number of rows from a table.
+
+```python
+csvw_functions_extra.get_row_count(
+        table_name,
+        data_folder
+        database_name,
+        filter_by=None,
+        group_by=None,
+        verbose=False
+        )
+```
+
+Arguments:
+- **table_name** *(str)*: The name of the table in the SQLite database. 
+- **data_folder** *(str)*: The filepath of a local folder where the SQLite database is stored.
+- **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
+- **filter_by** *(dict)*: A dictionary with information to filter the rows - see ...
+- **group_by** *(list)*: A list of field names to group by.
+
+Returns *(list)*: A list of result dictionaries.
+
+
 ### get_rows
 
 Description: Returns one or more rows from a table in the database.
 
 ```python
-get_rows(
+csvw_functions_extra.get_rows(
         table_name,
         data_folder,
         database_name,
@@ -315,7 +341,7 @@ Arguments:
 - **table_name** *(str)*: The name of the table in the SQLite database. 
 - **data_folder** *(str)*: The filepath of a local folder where the SQLite database is stored.
 - **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
-- **filter_by** *(dict)*: A dictionary with information to filter the rows - see
+- **filter_by** *(dict)*: A dictionary with information to filter the rows - see ...
 - **fields** *(list)*: A list of field names to return.
 
 Returns *(list)*: A list of result dictionaries.
@@ -373,30 +399,73 @@ csvw_functions_extra.convert_to_iterator(
 ```
 
 Arguments:
-**x** *(int, float, string, list...): The value to be converted to an iterator.
+**x** *(int, float, string, list, tuple, None): The value to be converted to an iterator.
 
-Returns *(list)*: A list of value(s)
+Returns *(list)*: A list of value(s), where:
 - A number is converted to a list of the number, e.g. `2` -> `[2]`
 - A string to a list of the string, e.g. `'abc'` -> `['abc']`
 - A list (or other iterable) remains the same, e.g. `[1,2,3]` -> `[1,2,3]`
+- `None` is converted to an empty list, e.g. `None` -> `[]`
 
 
-### get_where_clause_list
+### get_field_string
 
-Description: Returns a WHERE clause for use in a SQL statement.
+Description: Converts a list of field names into a string for use in a SQL query.
 
 ```python
-csvw_functions_extra.get_where_clause_list(
-        d
+get_field_string(
+        fields = None
         )
 ```
 
 Arguments:
-- **d** *(dict)*: A dictionary of items to filter on where the keys are the field (column) names and the values are data values to filter on.
+- **fields** *(str, list or None)*: The field name(s)
 
-Returns *(str)*: A WHERE string for use in a SQL statement.
+Returns *(str)*: A string of the field names, where: 
+- `None` is converted to `*`
+- A string is converted to a quoted string, e.g. `'field'` -> `' "field1" '`
+- A list is converted to a series of quoted strings separated by commas, e.g. `['field1','field2']` -> `' "field1","field2" '`
+
+### get_group_by_string
+
+Description: Converts a list of field names into two strings for use in GROUP BY clauses in a SQL query.
+
+```python
+get_group_by_string(
+        group_by = None
+        )
+```
+
+Arguments:
+- **group_by** *(str, list or None)*: The field name(s) to group by
+
+Returns *(tuple)*: A two-item tuple of (*group_by_fields*,*group_by_string*), where:
+- `None` is converted to `('', '')`
+- `'field1'` is converted to `(' "field1", ', 'GROUP BY "field1" ')`
+- `['field1','field2']` is converted to `(' "field1","field2", ', 'GROUP BY "field1","field2" ')`
 
 
+### get_where_string
+
+Description: Converts a dictionary of field names and values into a string for use in WHERE clauses in a SQL query.
+
+```python
+get_where_string(
+        filter_by = None 
+        )
+```
+
+Arguments:
+- **group_by** *(dict or None)*: The field name(s) and values to filter by
+
+Returns *(str)*: A string to use in a WHERE clause, where:
+- `None` is converted to `''`
+- `{'field1': 1}` is converted to `' WHERE ("field1" = 1)'`
+- `{'field1': 1, 'field2': 'a'}` is converted to `' WHERE ("field1" = 1) AND ("field2" = "a")'`
+- `{'field1': [1,2]}` is converted to `' WHERE ("field1" IN (1,2))'`
+- `{'field1': ['a','b']}` is converted to `' WHERE ("field1" IN ("a","b"))'`
+- `{'field1': {'BETWEEN':[1,2]}}` is converted to `' WHERE ("field1" BETWEEN (1 AND 2))'`
+- `{'field1': {'BETWEEN':['a','b']}}` is converted to `' WHERE ("field1" BETWEEN ("a" AND "b"))'`
 
 
 ## CSVW vocabulary

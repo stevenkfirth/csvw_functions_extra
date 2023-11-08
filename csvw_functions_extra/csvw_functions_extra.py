@@ -1060,28 +1060,37 @@ def get_where_string(
         
         filter_by=dict()
     
-    where=[]
+    where = []
     
     for field_name,filter_value in filter_by.items():
         
         if isinstance(filter_value,dict):
             
-            if len(filter_value)>1:
+            if len(filter_value) > 1:
                 raise Exception  # only a single filter keyword to be passed
                 
-            x=list(filter_value)[0]
-            y=filter_value[x]
+            filter_keyword = list(filter_value.keys())[0]
+            filter_values = list(filter_value.values())[0]
             
-            if x=='BETWEEN':
+            if filter_keyword == 'BETWEEN':
                 
-                if not len(y)==2:
+                filter_values = convert_to_iterator(filter_values)
+                
+                if not len(filter_values) == 2:
                     
                     raise Exception
                     
                 else:
                     
+                    filter_string_list = []
+                    for x in filter_values:
+                        if isinstance(x,str):
+                            filter_string_list.append(f'"{x}"')
+                        else:
+                            filter_string_list.append(f'{x}')
+                    filter_string=' AND '.join(filter_string_list)
+                    filter_string=f'({filter_string})'
                     filter_operator='BETWEEN'
-                    filter_string=f'"{y[0]}" AND "{y[1]}"'
                         
             else:
                 
@@ -1089,14 +1098,28 @@ def get_where_string(
             
         else:
         
-            filter_value=convert_to_iterator(filter_value)
-            if len(filter_value)==1:
-                filter_string=filter_value[0]
-                filter_string=f'"{filter_string}"'
+            filter_values=convert_to_iterator(filter_value)
+            
+            if len(filter_values) == 0:
+                filter_string = 'Null'
+                filter_operator = '='
+                
+            elif len(filter_values) == 1:
+                x = filter_values[0]
+                if isinstance(x,str):
+                    filter_string=f'"{x}"'
+                else:
+                    filter_string=f'{x}'
                 filter_operator='='
             else:
-                filter_string='","'.join(filter_value)
-                filter_string=f'("{filter_string}")'
+                filter_string_list = []
+                for x in filter_values:
+                    if isinstance(x,str):
+                        filter_string_list.append(f'"{x}"')
+                    else:
+                        filter_string_list.append(f'{x}')
+                filter_string=','.join(filter_string_list)
+                filter_string=f'({filter_string})'
                 filter_operator='IN'
             
         where.append(f'("{field_name}" {filter_operator} {filter_string})')
