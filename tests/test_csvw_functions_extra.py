@@ -183,17 +183,18 @@ class TESTUtilityFunctions(unittest.TestCase):
             ' WHERE ("field1" = 1)'
             )
         
-        # dict, two values single value
+        # dict, three values single value
         result = \
             csvw_functions_extra.get_where_string(
                 {
                     'field1': 1,
-                    'field2': 'a'
+                    'field2': 'a',
+                    'field3': None
                     }
                 )
         self.assertEqual(
             result,
-            ' WHERE ("field1" = 1) AND ("field2" = "a")'
+            ' WHERE ("field1" = 1) AND ("field2" = "a") AND ("field3" = Null)'
             )
         
         # dict, single item two integers

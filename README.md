@@ -461,7 +461,7 @@ Arguments:
 Returns *(str)*: A string to use in a WHERE clause, where:
 - `None` is converted to `''`
 - `{'field1': 1}` is converted to `' WHERE ("field1" = 1)'`
-- `{'field1': 1, 'field2': 'a'}` is converted to `' WHERE ("field1" = 1) AND ("field2" = "a")'`
+- `{'field1': 1, 'field2': 'a', 'field3': None}` is converted to `' WHERE ("field1" = 1) AND ("field2" = "a") AND ("field3" = Null)'`
 - `{'field1': [1,2]}` is converted to `' WHERE ("field1" IN (1,2))'`
 - `{'field1': ['a','b']}` is converted to `' WHERE ("field1" IN ("a","b"))'`
 - `{'field1': {'BETWEEN':[1,2]}}` is converted to `' WHERE ("field1" BETWEEN (1 AND 2))'`
