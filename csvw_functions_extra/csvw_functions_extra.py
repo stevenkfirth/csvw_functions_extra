@@ -964,16 +964,16 @@ def get_sql_table_names_in_database(
     """
     sql_table_names = \
         get_metadata_sql_table_names(
-                metadata_table_group_dict=None,
-                data_folder=data_folder,
-                metadata_filename=metadata_filename
+                metadata_table_group_dict = None,
+                data_folder = data_folder,
+                metadata_filename = metadata_filename
                 )
     #print('sql_table_names',sql_table_names)
             
     all_table_names = \
         get_all_table_names_in_database(
-                data_folder,
-                database_name        
+                data_folder = data_folder,
+                database_name = database_name       
                 )
     #print('all_table_names',all_table_names)
     
