@@ -16,6 +16,7 @@ import urllib.parse
 import sqlite3
 import subprocess
 import zipfile
+import pandas as pd
 
 
 #%% remote csvw metadata functions
@@ -387,75 +388,59 @@ def get_metadata_sql_table_names(
     return result
 
 
-def _get_metadata_column_codes(
-        column_name,
-        sql_table_name,
-        metadata_table_group_dict = None,
-        data_folder = None,
-        metadata_filename=None
-        ):
-    ""
-    
-    metadata_column_dict = \
-        get_metadata_column_dict(
-                column_name,
-                sql_table_name,
-                metadata_table_group_dict = metadata_table_group_dict,
-                data_folder = data_folder,
-                metadata_filename = metadata_filename
-                )
-        
-    datatype_base = metadata_column_dict['datatype']['base']
-        
-    codes = metadata_column_dict.get(
-        'https://purl.org/berg/csvw_functions_extra/vocab/codes',
-        {}
-        )
-    
-    if datatype_base == 'integer':
-        x=lambda y:int(y) if y!='' else y
-    elif datatype_base in ['decimal','number']:
-        x=lambda y:float(y) if y!='' else y
-    elif datatype_base == 'string':
-        x=lambda y:y
-    else:
-        raise Exception
-    
-    codes = {x(k):v['@value'] for k,v in codes.items()}
-    
-    return codes
-
 
 def get_metadata_columns_codes(
-        column_names,
         sql_table_name,
+        column_names = None,
         metadata_table_group_dict = None,
         data_folder = None,
         metadata_filename = None
         ):
     """
     """
+    metadata_table_dict = \
+        get_metadata_table_dict(
+            sql_table_name,
+            metadata_table_group_dict = metadata_table_group_dict,
+            data_folder = data_folder,
+            metadata_filename = metadata_filename
+            )
+        
+    if column_names is None:
+        column_names = \
+            [metadata_column_dict['name'] 
+             for metadata_column_dict 
+             in metadata_table_dict['tableSchema']['columns']
+             ]
+            
     column_names = convert_to_iterator(column_names)
     
-    if metadata_table_group_dict is None:
-        
-        metadata_table_group_dict = \
-            get_metadata_table_group_dict(
-                data_folder = data_folder,
-                metadata_filename = metadata_filename
-                )
-
     result = {}
+    
+    for metadata_column_dict in metadata_table_dict['tableSchema']['columns']:
+        
+        if metadata_column_dict['name'] in column_names:
+            
+            datatype_base = metadata_column_dict['datatype']['base']
+                
+            codes = metadata_column_dict.get(
+                'https://purl.org/berg/csvw_functions_extra/vocab/codes',
+                {}
+                )
+            
+            if datatype_base == 'integer':
+                x=lambda y:int(y) if y!='' else y
+            elif datatype_base in ['decimal','number']:
+                x=lambda y:float(y) if y!='' else y
+            elif datatype_base == 'string':
+                x=lambda y:y
+            else:
+                raise Exception
+            
+            codes = {x(k):v['@value'] for k,v in codes.items()}
+            
+            result[metadata_column_dict['name']] = codes
 
-    for column_name in column_names:
-        
-        result[column_name] = \
-            _get_metadata_column_codes(
-                    column_name,
-                    sql_table_name,
-                    metadata_table_group_dict = metadata_table_group_dict,
-                    )
-        
     return result
 
 
@@ -887,20 +872,29 @@ def get_rows(
         database_name,
         filter_by = None,  # a dict
         fields = None,  # or a list of field names
+        limit = None,
+        pandas = False,
+        replace_codes = False,
+        metadata_filename = None,  # needed if using replace codes
         verbose = False
         ):
     ""
-    fp_database=os.path.join(data_folder,database_name)
+    fp_database = os.path.join(data_folder,database_name)
     
-    field_string=\
+    field_string = \
         get_field_string(
             fields
             )
     
-    where_string=\
+    where_string = \
         get_where_string(
             filter_by
             )
+        
+    if limit is None:
+        limit_string = ''
+    else:
+        limit_string = f' LIMIT {limit} '
         
     query=f"""
         SELECT 
@@ -908,15 +902,54 @@ def get_rows(
         FROM 
             {table_name} 
             {where_string}
+        {limit_string}
         """
         
     if verbose:
         print(query)
-            
+        
+        
+    # get data
     with sqlite3.connect(fp_database) as conn:
-        conn.row_factory = sqlite3.Row
-        c = conn.cursor()
-        result=[dict(x) for x in c.execute(query).fetchall()]
+        
+        if pandas:
+            
+            result = pd.read_sql(query,conn)
+                
+        else:
+            
+            conn.row_factory = sqlite3.Row
+            c = conn.cursor()
+            result=[dict(x) for x in c.execute(query).fetchall()]
+        
+    
+    # replace codes
+    if replace_codes:
+        
+        codes = \
+            get_metadata_columns_codes(
+                    sql_table_name = table_name,
+                    column_names = None,
+                    data_folder = data_folder,
+                    metadata_filename = metadata_filename
+                    )
+            
+        if isinstance(result,list):  # it's a list of dictionaries
+            
+            for row_dict in result:
+                
+                for field, value in row_dict.items():
+                    
+                    lookup_dict = codes.get(field)
+                    
+                    row_dict[field] = lookup_dict.get(value,value)
+            
+        else:  # it's a Pandas dataframe
+            
+            for col in result.columns:
+                
+                result[col] = result[col].replace(codes.get(col,{}))
+                
         
     return result
 

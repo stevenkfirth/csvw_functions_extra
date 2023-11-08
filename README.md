@@ -180,8 +180,8 @@ Description: Returns lookup dictionaries for the lookup codes for one or more co
 
 ```python
 csvw_functions_extra.get_metadata_columns_codes(
-        column_names,
         sql_table_name,
+        column_names = None,
         metadata_table_group_dict = None,
         data_folder = None,
         metadata_filename=None
@@ -189,8 +189,8 @@ csvw_functions_extra.get_metadata_columns_codes(
 ```
 
 Arguments:
-- **column_name** *(str)*: The `name` value of a column in a CSVW TableSchema object.
 - **sql_table_name** *(str)*: The `https://purl.org/berg/csvw_functions_extra/vocab/sql_table_name` value of the table.
+- **column_names** *(str, list or None)*: The `name` value of one or more column in a CSVW TableSchema object. If None, then all columns are returned.
 - **metadata_table_group_dict** *(dict)*: A dictionary of a metadata Table Group object, such as the return value of [`get_metadata_table_group_dict`](#get_metadata_table_group_dict).
 - **data_folder** *(str)*: The filepath of a local folder where the normalized CSVW metadata file is saved.
 - **metadata_filename** *(str)*: The filename of a CSVW metadata file which has been created by the [`download_table_group`](#download_table_group) method and is located in the data folder.
@@ -333,6 +333,10 @@ csvw_functions_extra.get_rows(
         database_name,
         filter_by = None,  
         fields = None,  
+        limit = None,
+        pandas = False,
+        replace_codes = False,
+        metadata_filename = None,
         verbose = False
         )
 ```
@@ -343,6 +347,10 @@ Arguments:
 - **database_name** *(str)*: The name of the SQLite database, relative to the data_folder.
 - **filter_by** *(dict)*: A dictionary with information to filter the rows - see [`get_where_string`](#get_where_string).
 - **fields** *(list)*: A list of field names to return.
+- **limit** *(integer)*: The number of rows to return. If None, then all rows are returned.
+- **pandas** *(bool)*: If True, then a Pandas dataframe is returned rather than the result list as described below.
+- **replace_codes** *(bool):
+- **metadata_filename** *(str)*: Required only if `replace_codes` is True. 
 
 Returns *(list)*: A list of result dictionaries.
 
