@@ -346,6 +346,8 @@ Arguments:
 
 Returns *(list)*: A list of result dictionaries.
 
+TO DO: Include pandas option.
+
 
 ### get_sql_table_names_in_database
 
@@ -466,6 +468,7 @@ Returns *(str)*: A string to use in a WHERE clause, where:
 - `{'field1': ['a','b']}` is converted to `' WHERE ("field1" IN ("a","b"))'`
 - `{'field1': {'BETWEEN':[1,2]}}` is converted to `' WHERE ("field1" BETWEEN (1 AND 2))'`
 - `{'field1': {'BETWEEN':['a','b']}}` is converted to `' WHERE ("field1" BETWEEN ("a" AND "b"))'`
+TO DO: Include True and False
 
 
 ## CSVW vocabulary

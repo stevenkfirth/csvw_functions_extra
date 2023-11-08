@@ -989,35 +989,6 @@ def convert_to_iterator(
             return [x]
         
         
-# def get_where_clause_list(
-#         d
-#         ):
-#     ""
-#     conditions=[]
-    
-#     for k,v in d.items():
-        
-#         if not v is None:
-            
-#             x=convert_to_iterator(v)
-#             x=[f'"{x}"' if isinstance(x,str) else f'{x}' for x in x] 
-#             if len(x)==1:
-#                 x=f'("{k}" = {x[0]})'
-#             elif len(x)>1:
-#                 x=','.join(x)
-#                 x=f'("{k}" IN ({x}))'
-#             conditions.append(x)
-            
-#     result=''
-            
-#     if len(conditions)>0:
-        
-#         x=' AND '.join(conditions)
-#         result=f'WHERE {x}'
-        
-#     return result
-
-        
 def get_field_string(
         fields = None
         ):
@@ -1086,6 +1057,8 @@ def get_where_string(
                     for x in filter_values:
                         if isinstance(x,str):
                             filter_string_list.append(f'"{x}"')
+                        elif isinstance(x,bool):
+                            filter_string_list.append(f'{x}')
                         else:
                             filter_string_list.append(f'{x}')
                     filter_string=' AND '.join(filter_string_list)
@@ -1116,6 +1089,8 @@ def get_where_string(
                 for x in filter_values:
                     if isinstance(x,str):
                         filter_string_list.append(f'"{x}"')
+                    elif isinstance(x,bool):
+                        filter_string_list.append(f'{x}')
                     else:
                         filter_string_list.append(f'{x}')
                 filter_string=','.join(filter_string_list)
