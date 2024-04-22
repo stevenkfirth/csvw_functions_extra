@@ -3,9 +3,7 @@ Python functions for CSVW files providing extra functionality beyond the CSVW st
 
 ## Installation
 
-`pip install git+https://github.com/stevenkfirth/csvw_functions_extra`
-
-The python package [`csvw_functions`](https://github.com/stevenkfirth/csvw_functions) will also need to be installed.
+`pip install csvw_functions_extra`
 
 ## API
 
