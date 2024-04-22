@@ -16,7 +16,7 @@ import urllib.parse
 import sqlite3
 import subprocess
 import zipfile
-import pandas as pd
+# import pandas as pd
 
 
 #%% remote csvw metadata functions
@@ -873,7 +873,7 @@ def get_rows(
         filter_by = None,  # a dict
         fields = None,  # or a list of field names
         limit = None,
-        pandas = False,
+        # pandas = False,
         replace_codes = False,
         metadata_filename = None,  # needed if using replace codes
         verbose = False
@@ -912,15 +912,15 @@ def get_rows(
     # get data
     with sqlite3.connect(fp_database) as conn:
         
-        if pandas:
+        # if pandas:
             
-            result = pd.read_sql(query,conn)
+        #     result = pd.read_sql(query,conn)
                 
-        else:
+        # else:
             
-            conn.row_factory = sqlite3.Row
-            c = conn.cursor()
-            result=[dict(x) for x in c.execute(query).fetchall()]
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        result=[dict(x) for x in c.execute(query).fetchall()]
         
     
     # replace codes

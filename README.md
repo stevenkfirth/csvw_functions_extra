@@ -334,7 +334,6 @@ csvw_functions_extra.get_rows(
         filter_by = None,  
         fields = None,  
         limit = None,
-        pandas = False,
         replace_codes = False,
         metadata_filename = None,
         verbose = False
@@ -348,13 +347,10 @@ Arguments:
 - **filter_by** *(dict)*: A dictionary with information to filter the rows - see [`get_where_string`](#get_where_string).
 - **fields** *(list)*: A list of field names to return.
 - **limit** *(integer)*: The number of rows to return. If None, then all rows are returned.
-- **pandas** *(bool)*: If True, then a Pandas dataframe is returned rather than the result list as described below.
 - **replace_codes** *(bool):
 - **metadata_filename** *(str)*: Required only if `replace_codes` is True. 
 
 Returns *(list)*: A list of result dictionaries.
-
-TO DO: Include pandas option.
 
 
 ### get_sql_table_names_in_database
