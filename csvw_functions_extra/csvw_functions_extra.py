@@ -70,6 +70,8 @@ def download_table_group(
     """Reads a CSVW metadata file and downloads the CSV files from remote locations.
     
     This makes use of the https://purl.org/berg/csvw_functions_extra vocabulary.
+    
+    This also saves a normalised version of the CSWV metadata file in the data_folder.
         
     :param metadata_document_location: The filepath of the csvw metadata 
         file containing a table group object.
@@ -144,14 +146,16 @@ def download_table_group(
         # update metadata_table_dict
         metadata_table_dict['url']=download_info['csv_file_name']
         
-           
-        
     # save updated metadata_table_group_dict
-    fp_metadata=os.path.join(data_folder,os.path.basename(metadata_document_location))
-    with open(fp_metadata, 'w') as f:
+    metadata_filepath = os.path.join(data_folder,os.path.basename(metadata_document_location))
+    
+    if os.path.normpath(metadata_filepath) == os.path.normpath(metadata_document_location):
+        raise Exception('The metadata CSVW file should not be in the data folder as it will be overwritten.')
+    
+    with open(metadata_filepath, 'w') as f:
         json.dump(metadata_table_group_dict,f,indent=4)
         
-    return fp_metadata
+    return metadata_filepath
     
 
 def _get_download_info(
@@ -189,7 +193,7 @@ def _get_download_info(
     if zip_file_name is None:
         fp_zip = None
     else:
-        fp_zip=os.path.join(data_folder, zip_file_name)
+        fp_zip = zip_file_name
     if verbose:
         print('fp_zip:', fp_zip)
     
@@ -283,15 +287,10 @@ def _download_table_and_metadata(
 
 
 def get_metadata_table_group_dict(
-        data_folder,
-        metadata_filename
+        metadata_filepath
         ):
     ""
-    fp=os.path.join(
-        data_folder,
-        metadata_filename
-        )
-    with open(fp) as f:
+    with open(metadata_filepath) as f:
         metadata_table_group_dict=json.load(f)
         
     return metadata_table_group_dict
@@ -300,16 +299,14 @@ def get_metadata_table_group_dict(
 def get_metadata_table_dict(
         sql_table_name,
         metadata_table_group_dict = None,
-        data_folder = None,
-        metadata_filename = None
+        metadata_filepath = None
         ):
     ""
     if metadata_table_group_dict is None:
         
         metadata_table_group_dict = \
             get_metadata_table_group_dict(
-                data_folder = data_folder,
-                metadata_filename = metadata_filename
+                metadata_filepath = metadata_filepath
                 )
     
     for metadata_table_dict in metadata_table_group_dict['tables']:
@@ -329,16 +326,14 @@ def get_metadata_column_dict(
         column_name,
         sql_table_name,
         metadata_table_group_dict = None,
-        data_folder = None,
-        metadata_filename = None
+        metadata_filepath = None
         ):
     ""
     if metadata_table_group_dict is None:
         
         metadata_table_group_dict = \
             get_metadata_table_group_dict(
-                data_folder = data_folder,
-                metadata_filename = metadata_filename
+                metadata_filepath = metadata_filepath
                 )
             
     metadata_table_dict = \
@@ -362,8 +357,7 @@ def get_metadata_column_dict(
 
 def get_metadata_sql_table_names(
         metadata_table_group_dict = None,
-        data_folder = None,
-        metadata_filename = None
+        metadata_filepath = None
         ):
     """
     """
@@ -371,8 +365,7 @@ def get_metadata_sql_table_names(
         
         metadata_table_group_dict = \
             get_metadata_table_group_dict(
-                data_folder,
-                metadata_filename
+                metadata_filepath
                 )
 
     result=[]
@@ -393,8 +386,7 @@ def get_metadata_columns_codes(
         sql_table_name,
         column_names = None,
         metadata_table_group_dict = None,
-        data_folder = None,
-        metadata_filename = None
+        metadata_filepath = None
         ):
     """
     """
@@ -402,8 +394,7 @@ def get_metadata_columns_codes(
         get_metadata_table_dict(
             sql_table_name,
             metadata_table_group_dict = metadata_table_group_dict,
-            data_folder = data_folder,
-            metadata_filename = metadata_filename
+            metadata_filepath = metadata_filepath
             )
         
     if column_names is None:
@@ -447,9 +438,8 @@ def get_metadata_columns_codes(
 #%% import data to sqlite
 
 def import_table_group_to_sqlite(
-        metadata_filename,
-        data_folder,
-        database_name,
+        metadata_filepath,
+        database_filepath,
         csv_file_names=None,  # if none then all are imported
         overwrite_existing_tables=False,
         verbose=False
@@ -491,19 +481,14 @@ def import_table_group_to_sqlite(
     
     # convert single csv_file_name to list. None becomes an empty list.
     csv_file_name_list=convert_to_iterator(csv_file_names)
-        
-    # create data_folder if it doesn't exist
-    if not os.path.exists(data_folder):
-        os.makedirs(data_folder)
-        
-    # set database fp
-    fp_database=os.path.join(data_folder,database_name)
     
+    # 
+    metadata_dir, metadata_filename = os.path.split(metadata_filepath)
+        
     # get normalised metadata_table_group_dict
     metadata_table_group_dict = \
         get_metadata_table_group_dict(
-                data_folder,
-                metadata_filename
+                metadata_filepath
                 )
     #print(metadata_table_group_dict)
     
@@ -514,7 +499,7 @@ def import_table_group_to_sqlite(
         csv_file_name, table_name, fp_csv, remove_existing_table = \
             _get_import_info(
                 metadata_table_dict,
-                data_folder,
+                data_folder = metadata_dir,
                 verbose=False,
                 ) 
         
@@ -530,14 +515,14 @@ def import_table_group_to_sqlite(
                 print('remove_existing_table',remove_existing_table)
                 
             if _check_if_table_exists_in_database(
-                fp_database, 
+                database_filepath, 
                 table_name
                 ):
                 
                 if remove_existing_table or overwrite_existing_tables:
     
                     _drop_table(
-                        fp_database,
+                        database_fielpath,
                         table_name
                         )
         
@@ -547,7 +532,7 @@ def import_table_group_to_sqlite(
         # get import info
         csv_file_name, table_name, fp_csv, remove_existing_table = _get_import_info(
                 metadata_table_dict,
-                data_folder,
+                data_folder = metadata_dir,
                 verbose=False,
                 ) 
             
@@ -556,19 +541,19 @@ def import_table_group_to_sqlite(
             
             # create empty table if needed
             if not _check_if_table_exists_in_database(
-                    fp_database, 
+                    database_filepath, 
                     table_name
                     ):
                 
                 _create_table_from_csvw(
                     metadata_table_dict, 
-                    fp_database, 
+                    database_filepath, 
                     table_name)
                 
             # import table data to database
             _import_csv_file(
                     fp_csv,
-                    fp_database,
+                    database_filepath,
                     table_name,
                     verbose=verbose
                     )
@@ -706,20 +691,20 @@ def _get_row_count_in_database_table(
         
 def _import_csv_file(
         fp_csv,
-        fp_database,
+        database_filepath,
         table_name,
         verbose=False
         ):
     """
     """                
-    fp_database2=fp_database.replace('\\','\\\\')
+    fp_database2=database_filepath.replace('\\','\\\\')
     fp_csv2=fp_csv.replace('\\','\\\\')
     command=f'sqlite3 {fp_database2} -cmd ".mode csv" ".import --skip 1 {fp_csv2} {table_name}"'
     if verbose:
         print('COMMAND LINE', command)
     subprocess.run(command)
     if verbose:
-        print('Number of rows after import: ', _get_row_count_in_database_table(fp_database,table_name))
+        print('Number of rows after import: ', _get_row_count_in_database_table(database_filepath,table_name))
 
 
 
@@ -730,8 +715,7 @@ def _import_csv_file(
 def add_index(
         fields,
         table_name,
-        data_folder,
-        database_name,
+        database_filepath,
         unique=False,
         verbose=False
         ):
@@ -754,19 +738,16 @@ def add_index(
     column_list='","'.join(fields)
     column_list=f'"{column_list}"'
         
-    fp_database=os.path.join(data_folder,database_name)
-    
     query=f"""
         CREATE {unique_string} INDEX "{index_name}" 
         ON "{table_name}"({column_list});
     """
     if verbose:
-        print('fp_database',fp_database)
         print(query)
         
     try:
         
-        with sqlite3.connect(fp_database) as conn:
+        with sqlite3.connect(database_filepath) as conn:
             c = conn.cursor()
             c.execute(query)
             conn.commit()
@@ -778,14 +759,11 @@ def add_index(
 
         
 def get_all_table_names_in_database(
-        data_folder,
-        database_name        
+        database_filepath        
         ):
     """
     """
-    fp_database=os.path.join(data_folder,database_name)
-    
-    with sqlite3.connect(fp_database) as conn:
+    with sqlite3.connect(database_filepath) as conn:
         c = conn.cursor()
         result = c.execute('SELECT name FROM sqlite_master WHERE type="table"').fetchall()
 
@@ -796,22 +774,15 @@ def get_all_table_names_in_database(
 
 def get_field_names(
         table_name,
-        data_folder,
-        database_name,
+        database_filepath,
         verbose=False
         ):
     ""
-    fp_database=os.path.join(data_folder,database_name)
-    
-    if verbose:
-        print('fp_database:',fp_database)
-        
-        
     query=f'PRAGMA table_info({table_name});'
     if verbose:
         print(query)
         
-    with sqlite3.connect(fp_database) as conn:
+    with sqlite3.connect(database_filepath) as conn:
         c = conn.cursor()
         
         return [x[1] for x in c.execute(query).fetchall()]
@@ -820,16 +791,12 @@ def get_field_names(
     
 def get_row_count(
         table_name,
-        data_folder,
-        database_name,
+        database_filepath,
         filter_by=None,
         group_by=None,
         verbose=False
         ):
     ""
-    fp_database=os.path.join(data_folder,database_name)
-    if verbose:
-        print('fp_database:',fp_database)
     
     where_string=\
         get_where_string(
@@ -858,7 +825,7 @@ def get_row_count(
     if verbose:
         print(query)
             
-    with sqlite3.connect(fp_database) as conn:
+    with sqlite3.connect(database_filepath) as conn:
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
         result=[dict(x) for x in c.execute(query).fetchall()]
@@ -868,8 +835,7 @@ def get_row_count(
 
 def get_rows(
         table_name,
-        data_folder,
-        database_name,
+        database_filepath,
         filter_by = None,  # a dict
         fields = None,  # or a list of field names
         limit = None,
@@ -879,8 +845,6 @@ def get_rows(
         verbose = False
         ):
     ""
-    fp_database = os.path.join(data_folder,database_name)
-    
     field_string = \
         get_field_string(
             fields
@@ -910,7 +874,7 @@ def get_rows(
         
         
     # get data
-    with sqlite3.connect(fp_database) as conn:
+    with sqlite3.connect(database_filepath) as conn:
         
         # if pandas:
             
@@ -956,24 +920,21 @@ def get_rows(
 
 
 def get_sql_table_names_in_database(
-        data_folder,
-        database_name,
-        metadata_filename
+        database_filepath,
+        metadata_filepath
         ):
     """
     """
     sql_table_names = \
         get_metadata_sql_table_names(
                 metadata_table_group_dict = None,
-                data_folder = data_folder,
-                metadata_filename = metadata_filename
+                metadata_filepath = metadata_filepath
                 )
     #print('sql_table_names',sql_table_names)
             
     all_table_names = \
         get_all_table_names_in_database(
-                data_folder = data_folder,
-                database_name = database_name       
+                database_filepath = database_filepath
                 )
     #print('all_table_names',all_table_names)
     
@@ -985,18 +946,14 @@ def get_sql_table_names_in_database(
 
 def run_sql(
         sql_query,
-        data_folder,
-        database_name,
+        database_filepath,
         verbose=False
         ):
     ""
-    fp_database=os.path.join(data_folder,database_name)
-    
     if verbose:
-        print('fp_database',fp_database)
         print(sql_query)
         
-    with sqlite3.connect(fp_database) as conn:
+    with sqlite3.connect(database_filepath) as conn:
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
         result=[dict(x) for x in c.execute(sql_query).fetchall()]

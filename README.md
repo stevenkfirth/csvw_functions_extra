@@ -88,14 +88,12 @@ Description: Returns a CSVW metadata Table Group object.
 
 ```python
 csvw_functions_extra.get_metadata_table_group_dict(
-        data_folder,
-        metadata_filename
+        metadata_filepath
         )
 ```
 
 Arguments:
-- **data_folder** *(str)*: The filepath of a local folder where the normalized CSVW metadata file is saved.
-- **metadata_filename** *(str)*: The filename of a CSVW metadata file which has been created by the [`download_table_group`](#download_table_group) method and is located in the data folder.
+- **metadata_filename** *(str)*: The filepath of a CSVW metadata file which has been created by the [`download_table_group`](#download_table_group) method and is located in the data folder.
 
 Returns *(dict)*: A dictionary of the CSVW Table Group object.
 
@@ -108,8 +106,7 @@ Description: Returns a CSVW metadata Table object.
 csvw_functions_extra.get_metadata_table_dict(
         sql_table_name,
         metadata_table_group_dict=None,
-        data_folder=None,
-        metadata_filename=None
+        metadata_filepath=None
         )
 ```
 
@@ -133,8 +130,7 @@ csvw_functions_extra.get_metadata_column_dict(
         column_name,
         sql_table_name,
         metadata_table_group_dict=None,
-        data_folder=None,
-        metadata_filename=None
+        metadata_filepath=None
         )
 ```
 
@@ -157,8 +153,7 @@ Description: Returns a list of the SQL table names in the CSVW metadata file.
 ```python
 csvw_functions_extra.get_metadata_sql_table_names(
         metadata_table_group_dict=None,
-        data_folder=None,
-        metadata_filename=None
+        metadata_filepath=None
         )
 ```
 
@@ -181,8 +176,7 @@ csvw_functions_extra.get_metadata_columns_codes(
         sql_table_name,
         column_names = None,
         metadata_table_group_dict = None,
-        data_folder = None,
-        metadata_filename=None
+        metadata_filepath=None
         )
 ```
 
@@ -215,8 +209,7 @@ Call signature:
 ```python
 csvw_functions_extra.import_table_group_to_sqlite(
         metadata_filename,
-        data_folder,
-        database_name,
+        database_filepath,
         csv_file_names=None, 
         remove_existing_tables=False,
         verbose=False
@@ -241,8 +234,7 @@ Description: Adds an SQlite index to a column in a SQlite database.
 csvw_functions_extra.add_index(
         fields,
         table_name,
-        data_folder,
-        database_name,
+        database_filepath,
         unique=False,
         verbose=False
         )
@@ -262,8 +254,7 @@ Description: Returns a list of all table names in the database.
 
 ```python
 csvw_functions_extra.get_all_table_names_in_database(
-        data_folder,
-        database_name        
+        database_filepath        
         )
 ```
 
@@ -281,8 +272,7 @@ Description: Returns a list of the field names in a database table.
 ```python
 csvw_functions_extra.get_field_names(
         table_name,
-        data_folder,
-        database_name,
+        database_filepath,
         verbose=False
         )
 ```
@@ -302,8 +292,7 @@ Description: Returns the number of rows from a table.
 ```python
 csvw_functions_extra.get_row_count(
         table_name,
-        data_folder
-        database_name,
+        database_filepath,
         filter_by=None,
         group_by=None,
         verbose=False
@@ -327,8 +316,7 @@ Description: Returns one or more rows from a table in the database.
 ```python
 csvw_functions_extra.get_rows(
         table_name,
-        data_folder,
-        database_name,
+        database_filepath,
         filter_by = None,  
         fields = None,  
         limit = None,
@@ -357,8 +345,7 @@ Description: Returns a list of table names in the database which are also presen
 
 ```python
 csvw_functions_extra.get_sql_table_names_in_database(
-        data_folder,
-        database_name,
+        database_filepath,
         metadata_filename
         )
 ```
@@ -378,8 +365,7 @@ Description: Runs an SQL query on the database and returns the result.
 ```python
 csvw_functions_extra.run_sql(
         sql_query,
-        data_folder,
-        database_name,
+        database_filepath,
         verbose=False
         )
 ```
